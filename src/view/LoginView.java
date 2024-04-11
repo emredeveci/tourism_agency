@@ -8,6 +8,7 @@ import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 public class LoginView extends Layout {
     private JPanel container;
@@ -59,8 +60,13 @@ public class LoginView extends Layout {
             if (loginUser == null) {
                 Utility.showMessage("notFound");
             } else {
-                AdminView adminView = new AdminView(loginUser);
-                dispose();
+                if (Objects.equals(loginUser.getRole(), "admin")){
+                    AdminView adminView = new AdminView(loginUser);
+                    dispose();
+                } else {
+                    AgentView agentView = new AgentView(loginUser);
+                    dispose();
+                }
             }
         }
     }
