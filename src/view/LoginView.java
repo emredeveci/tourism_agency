@@ -1,9 +1,13 @@
 package view;
 
 import business.UserManager;
+import core.Utility;
 import entity.User;
 
+import javax.rmi.CORBA.Util;
 import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class LoginView extends Layout {
     private JPanel container;
@@ -22,14 +26,42 @@ public class LoginView extends Layout {
         this.add(container);
         this.guiInitialize(300,300);
 
-        btn_login.addActionListener(e -> {
-            JTextField[] formFieldList = {this.fld_username, this.fld_password};
-            User loginUser = this.userManager.findByLogin(this.fld_username.getText(), this.fld_password.getText());
-            if(loginUser == null){
-                System.out.println("null");
-            } else {
-                System.out.println("success");
+        btn_login.addActionListener(e -> handleLogin());
+
+        fld_username.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleLogin();
+                }
             }
         });
+
+        fld_password.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    handleLogin();
+                }
+            }
+        });
+
+        btn_login.addActionListener(e -> handleLogin());
+    }
+
+    private void handleLogin() {
+        JTextField[] formFieldList = {this.fld_username, this.fld_password};
+
+        if(Utility.isFieldListEmpty(formFieldList)){
+            Utility.showMessage("fill");
+        } else {
+            User loginUser = this.userManager.findByLogin(this.fld_username.getText(), this.fld_password.getText());
+            if (loginUser == null) {
+                Utility.showMessage("notFound");
+            } else {
+                AdminView adminView = new AdminView(loginUser);
+                dispose();
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ public class User {
         this.role = role;
     }
 
-    // Getters and setters
+
     public int getUserId() {
         return userId;
     }
@@ -45,7 +45,7 @@ public class User {
         return role;
     }
 
-    public void setRole(String authorityLevel) {
+    public void setRole(String role) {
         this.role = role;
     }
 
