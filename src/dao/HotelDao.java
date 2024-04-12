@@ -2,7 +2,6 @@ package dao;
 
 import core.DatabaseConnection;
 import entity.Hotel;
-import entity.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,6 +33,106 @@ public class HotelDao {
             System.out.println(e.getMessage());
         }
         return obj;
+    }
+
+    public boolean save(Hotel hotel) {
+        String query = "INSERT INTO public.hotels " +
+                "(" +
+                "hotel_name," +
+                "star_rating," +
+                "city," +
+                "district," +
+                "email," +
+                "phone," +
+                "address" +
+                ")" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setString(1, hotel.getHotel_name());
+            pr.setInt(2, hotel.getStar_rating());
+            pr.setString(3, hotel.getCity());
+            pr.setString(4, hotel.getDistrict());
+            pr.setString(5, hotel.getEmail());
+            pr.setString(6, hotel.getPhone());
+            pr.setString(7, hotel.getAddress());
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public boolean update(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
+        String query = "UPDATE public.hotels SET " +
+                "hotel_name = ? , " +
+                "star_rating = ? , " +
+                "city = ? ," +
+                "district = ? ," +
+                "email = ? ," +
+                "phone = ? ," +
+                "address = ? " +
+                "WHERE hotel_id = ?";
+
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setString(1, hotel.getHotel_name());
+            pr.setInt(2, hotel.getStar_rating());
+            pr.setString(3, hotel.getCity());
+            pr.setString(4, hotel.getDistrict());
+            pr.setString(5, hotel.getEmail());
+            pr.setString(6, hotel.getPhone());
+            pr.setString(7, hotel.getAddress());
+            pr.setInt(8, hotel.getHotel_id());
+            pr.executeUpdate();
+
+            deleteAmenitiesForHotel(hotel.getHotel_id());
+
+            for (String amenity : selectedAmenities) {
+                String amenityQuery = "INSERT INTO hotel_amenities (hotel_id, amenity_id) VALUES (?, ?)";
+                PreparedStatement amenityStatement = this.databaseConnection.getConnection().prepareStatement(amenityQuery);
+                amenityStatement.setInt(1, hotel.getHotel_id());
+                amenityStatement.setInt(2, getAmenityIdByName(amenity));
+                amenityStatement.executeUpdate();
+            }
+
+            deletePensionsForHotel(hotel.getHotel_id());
+
+            for (String pension : selectedPensions) {
+                String pensionQuery = "INSERT INTO hotel_pensions (hotel_id, pension_id) VALUES (?, ?)";
+                PreparedStatement pensionStatement = this.databaseConnection.getConnection().prepareStatement(pensionQuery);
+                pensionStatement.setInt(1, hotel.getHotel_id());
+                pensionStatement.setInt(2, getPensionIdByName(pension));
+                pensionStatement.executeUpdate();
+            }
+
+            deleteSeasonsForHotel(hotel.getHotel_id());
+
+            String seasonQuery = "INSERT INTO discount_periods (hotel_id, start_date, end_date) VALUES (?, ?, ?)";
+            PreparedStatement seasonStatement = this.databaseConnection.getConnection().prepareStatement(seasonQuery);
+            for (Date[] seasonDates : enteredSeasons) {
+                // Extract start and end dates from the Date[]
+                Date startDate = seasonDates[0];
+                Date endDate = seasonDates[1];
+
+                // Convert Date to java.sql.Date
+                java.sql.Date startDateSql = new java.sql.Date(startDate.getTime());
+                java.sql.Date endDateSql = new java.sql.Date(endDate.getTime());
+
+                seasonStatement.setInt(1, hotel.getHotel_id());
+                seasonStatement.setDate(2, startDateSql);
+                seasonStatement.setDate(3, endDateSql);
+                seasonStatement.addBatch(); // Add batch for batch insertion
+            }
+            // Execute batch insertion
+            seasonStatement.executeBatch();
+
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return true;
     }
 
     public boolean delete(int id) {
@@ -141,6 +240,99 @@ public class HotelDao {
         }
 
         return discountPeriods;
+    }
+
+    public List<LocalDate[]> findEnteredSeasons(int hotelId) {
+        List<LocalDate[]> enteredSeasons = new ArrayList<>();
+        String query = "SELECT start_date, end_date " +
+                "FROM discount_periods " +
+                "WHERE hotel_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, hotelId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                LocalDate startDate = resultSet.getDate("start_date").toLocalDate();
+                LocalDate endDate = resultSet.getDate("end_date").toLocalDate();
+
+                LocalDate[] seasonDates = {startDate, endDate};
+                enteredSeasons.add(seasonDates);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return enteredSeasons;
+    }
+
+    public void deleteAmenitiesForHotel(int hotelId) {
+        String query = "DELETE FROM hotel_amenities WHERE hotel_id = ?";
+        try (PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query)) {
+            pr.setInt(1, hotelId);
+            pr.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deletePensionsForHotel(int hotelId) {
+        String query = "DELETE FROM hotel_pensions WHERE hotel_id = ?";
+        try (PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query)) {
+            pr.setInt(1, hotelId);
+            pr.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteSeasonsForHotel(int hotelId) {
+        String query = "DELETE FROM discount_periods WHERE hotel_id = ?";
+        try (PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query)) {
+            pr.setInt(1, hotelId);
+            pr.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getPensionIdByName(String pensionName) {
+        int pensionId = -1;
+        String query = "SELECT pension_id FROM pension_types WHERE pension_type = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, pensionName);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                pensionId = resultSet.getInt("pension_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pensionId;
+    }
+
+    public int getAmenityIdByName(String amenityName) {
+        int amenityId = -1;
+        String query = "SELECT amenity_id FROM amenities WHERE amenity_name = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, amenityName);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                amenityId = resultSet.getInt("amenity_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return amenityId;
     }
 
     public Hotel match(ResultSet rs) throws SQLException {

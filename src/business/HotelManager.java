@@ -5,7 +5,9 @@ import dao.HotelDao;
 import entity.Hotel;
 import entity.User;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class HotelManager {
@@ -32,8 +34,28 @@ public class HotelManager {
         return this.hotelDao.findDiscountPeriods(id);
     }
 
+    public List<LocalDate[]> findEnteredSeasons(int id) {
+        return this.hotelDao.findEnteredSeasons(id);
+    }
+
     public Hotel getById(int id) {
         return this.hotelDao.getById(id);
+    }
+
+    public boolean save(Hotel hotel) {
+        if (this.getById(hotel.getHotel_id()) != null) {
+            Utility.showMessage("error");
+            return false;
+        }
+        return this.hotelDao.save(hotel);
+    }
+
+    public boolean update(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
+        if (this.getById(hotel.getHotel_id()) == null) {
+            Utility.showMessage("Model with " + hotel.getHotel_id() + " could not be found.");
+            return false;
+        }
+        return this.hotelDao.update(hotel, selectedAmenities, selectedPensions, enteredSeasons);
     }
 
     public boolean delete(int id) {

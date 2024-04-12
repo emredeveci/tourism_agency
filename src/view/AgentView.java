@@ -44,6 +44,8 @@ public class AgentView extends Layout {
     private Object[] col_amenities;
     private Object[] col_discount;
 
+
+
     public AgentView(User user) {
         this.add(container);
         this.guiInitialize(1000, 700);
@@ -66,6 +68,7 @@ public class AgentView extends Layout {
         //Tab: Hotels
         loadHotelTable(null);
 
+
     }
 
     private void loadComponent() {
@@ -79,6 +82,10 @@ public class AgentView extends Layout {
     }
 
     private void loadHotelTable(List<Object[]> hotelList) {
+        loadHotelTable(hotelList, null);
+    }
+
+    private void loadHotelTable(List<Object[]> hotelList, Integer selectedHotelId) {
         tableRowSelect(this.tbl_hotels);
         this.hotel_menu = new JPopupMenu();
 
@@ -89,16 +96,19 @@ public class AgentView extends Layout {
 
         createTable(this.tmdl_hotels, this.tbl_hotels, col_hotel, hotelList);
 
-//        this.hotel_menu.add("Update").addActionListener(e -> {
-//            int selectedUserId = this.getTableSelectedRow(tbl_hotels, 0);
-//            HotelView hotelView = new HotelView(this.hotelManager.getById(selectedUserId));
-//            HotelView.addWindowListener(new WindowAdapter() {
-//                @Override
-//                public void windowClosed(WindowEvent e) {
-//                    loadHotelTable(null);
-//                }
-//            });
-//        });
+        this.hotel_menu.add("Update").addActionListener(e -> {
+            HotelView hotelView = new HotelView(this.hotelManager.getById(this.getTableSelectedRow(tbl_hotels, 0)));
+            hotelView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
+                    loadHotelTable(null, selectedHotelId);
+                    loadPensionTable(null, selectedHotelId);
+                    loadAmenitiesTable(null, selectedHotelId);
+                    loadDiscountPeriodsTable(null, selectedHotelId);
+                }
+            });
+        });
 
         this.hotel_menu.add("Remove").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
@@ -131,10 +141,8 @@ public class AgentView extends Layout {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = tbl_hotels.getSelectedRow();
-                    if (selectedRow != -1) { // Check if a row is selected
+                    if (selectedRow != -1) {
                         int selectedHotelId = Integer.parseInt(tbl_hotels.getValueAt(selectedRow, 0).toString());
-                        tbl_hotels.setSelectionBackground(Color.YELLOW); // Set background color of selected row
-                        tbl_hotels.setSelectionForeground(Color.BLACK);   // Set foreground color of selected row
                         loadPensionTable(null, selectedHotelId);
                         loadAmenitiesTable(null, selectedHotelId);
                         loadDiscountPeriodsTable(null, selectedHotelId);
