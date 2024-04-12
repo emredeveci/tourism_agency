@@ -32,9 +32,12 @@ public class AgentView extends Layout {
     private Hotel hotel;
     private HotelManager hotelManager;
     private DefaultTableModel tmdl_hotels = new DefaultTableModel();
-    private DefaultTableModel tmdl_pensions = new DefaultTableModel();
-    private DefaultTableModel tmdl_amenities = new DefaultTableModel();
-    private DefaultTableModel tmdl_discount_periods = new DefaultTableModel();
+//    private DefaultTableModel tmdl_pensions = new DefaultTableModel();
+//    private DefaultTableModel tmdl_amenities = new DefaultTableModel();
+//    private DefaultTableModel tmdl_discount_periods = new DefaultTableModel();
+    private DefaultTableModel tmdl_pensions = new DefaultTableModel(new Object[]{"ID", "Pension Type"}, 0);
+    private DefaultTableModel tmdl_amenities = new DefaultTableModel(new Object[]{"ID", "Amenity"}, 0);
+    private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
     private Object[] col_hotel;
     private Object[] col_pension;
     private Object[] col_amenities;
@@ -54,11 +57,13 @@ public class AgentView extends Layout {
 
         loadComponent();
 
+        //start the details tables empty
+        tbl_pension_types.setModel(tmdl_pensions);
+        tbl_amenities.setModel(tmdl_amenities);
+        tbl_discount_periods.setModel(tmdl_discount_periods);
+
         //Tab: Hotels
         loadHotelTable(null);
-        loadPensionTable(null, 1);
-        loadAmenitiesTable(null, 1);
-        loadDiscountPeriodsTable(null, 1);
 
     }
 
