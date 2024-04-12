@@ -104,7 +104,7 @@ public class HotelView extends Layout {
                     if (this.hotel.getHotel_id() != 0) {
                         result = this.hotelManager.update(this.hotel, selectedAmenities, selectedPensions, enteredSeasons);
                     } else {
-                        result = this.hotelManager.save(this.hotel);
+                        result = this.hotelManager.save(this.hotel, selectedAmenities, selectedPensions, enteredSeasons);
                     }
 
                     if (result) {

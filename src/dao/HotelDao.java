@@ -3,10 +3,7 @@ package dao;
 import core.DatabaseConnection;
 import entity.Hotel;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,21 +32,42 @@ public class HotelDao {
         return obj;
     }
 
-    public boolean save(Hotel hotel) {
+//    public boolean save(Hotel hotel) {
+//        String query = "INSERT INTO public.hotels " +
+//                "(" +
+//                "hotel_name," +
+//                "star_rating," +
+//                "city," +
+//                "district," +
+//                "email," +
+//                "phone," +
+//                "address" +
+//                ")" +
+//                " VALUES (?, ?, ?, ?, ?, ?, ?)";
+//
+//        try {
+//            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+//            pr.setString(1, hotel.getHotel_name());
+//            pr.setInt(2, hotel.getStar_rating());
+//            pr.setString(3, hotel.getCity());
+//            pr.setString(4, hotel.getDistrict());
+//            pr.setString(5, hotel.getEmail());
+//            pr.setString(6, hotel.getPhone());
+//            pr.setString(7, hotel.getAddress());
+//            return pr.executeUpdate() != -1;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return true;
+//    }
+
+    public boolean save(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
         String query = "INSERT INTO public.hotels " +
-                "(" +
-                "hotel_name," +
-                "star_rating," +
-                "city," +
-                "district," +
-                "email," +
-                "phone," +
-                "address" +
-                ")" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "(hotel_name, star_rating, city, district, email, phone, address) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             pr.setString(1, hotel.getHotel_name());
             pr.setInt(2, hotel.getStar_rating());
             pr.setString(3, hotel.getCity());
@@ -57,11 +75,57 @@ public class HotelDao {
             pr.setString(5, hotel.getEmail());
             pr.setString(6, hotel.getPhone());
             pr.setString(7, hotel.getAddress());
-            return pr.executeUpdate() != -1;
+            pr.executeUpdate();
+
+            ResultSet generatedKeys = pr.getGeneratedKeys();
+            int hotelId = -1;
+            if (generatedKeys.next()) {
+                hotelId = generatedKeys.getInt(1);
+            } else {
+                // Handle failure to get generated keys
+                throw new SQLException("Failed to retrieve generated hotel ID.");
+            }
+
+            for (String amenity : selectedAmenities) {
+                String amenityQuery = "INSERT INTO hotel_amenities (hotel_id, amenity_id) VALUES (?, ?)";
+                PreparedStatement amenityStatement = this.databaseConnection.getConnection().prepareStatement(amenityQuery);
+                amenityStatement.setInt(1, hotelId);
+                amenityStatement.setInt(2, getAmenityIdByName(amenity));
+                amenityStatement.executeUpdate();
+            }
+
+            for (String pension : selectedPensions) {
+                String pensionQuery = "INSERT INTO hotel_pensions (hotel_id, pension_id) VALUES (?, ?)";
+                PreparedStatement pensionStatement = this.databaseConnection.getConnection().prepareStatement(pensionQuery);
+                pensionStatement.setInt(1, hotelId);
+                pensionStatement.setInt(2, getPensionIdByName(pension));
+                pensionStatement.executeUpdate();
+            }
+
+            String seasonQuery = "INSERT INTO discount_periods (hotel_id, start_date, end_date) VALUES (?, ?, ?)";
+            PreparedStatement seasonStatement = this.databaseConnection.getConnection().prepareStatement(seasonQuery);
+            for (Date[] seasonDates : enteredSeasons) {
+                // Extract start and end dates from the Date[]
+                Date startDate = seasonDates[0];
+                Date endDate = seasonDates[1];
+
+                // Convert Date to java.sql.Date
+                java.sql.Date startDateSql = new java.sql.Date(startDate.getTime());
+                java.sql.Date endDateSql = new java.sql.Date(endDate.getTime());
+
+                seasonStatement.setInt(1, hotelId);
+                seasonStatement.setDate(2, startDateSql);
+                seasonStatement.setDate(3, endDateSql);
+                seasonStatement.addBatch(); // Add batch for batch insertion
+            }
+            // Execute batch insertion
+            seasonStatement.executeBatch();
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return false; // Return false if an exception occurs
         }
-        return true;
+        return true; // Return true if insertion is successful
     }
 
     public boolean update(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
@@ -216,7 +280,7 @@ public class HotelDao {
 
     public List<Object[]> findDiscountPeriods(int hotelId) {
         List<Object[]> discountPeriods = new ArrayList<>();
-        String query = "SELECT discount_id, start_date, end_date " +
+        String query = "SELECT hotel_id, start_date, end_date " +
                 "FROM discount_periods " +
                 "WHERE hotel_id = ?";
 
@@ -226,13 +290,13 @@ public class HotelDao {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                int discountId = resultSet.getInt("discount_id");
+                int hotel = resultSet.getInt("hotel_id");
                 java.sql.Date startDateSql = resultSet.getDate("start_date");
                 java.sql.Date endDateSql = resultSet.getDate("end_date");
                 LocalDate startDate = startDateSql.toLocalDate();
                 LocalDate endDate = endDateSql.toLocalDate();
 
-                Object[] rowData = {discountId, startDate, endDate};
+                Object[] rowData = {hotel, startDate, endDate};
                 discountPeriods.add(rowData);
             }
         } catch (SQLException e) {

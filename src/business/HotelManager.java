@@ -42,12 +42,12 @@ public class HotelManager {
         return this.hotelDao.getById(id);
     }
 
-    public boolean save(Hotel hotel) {
+    public boolean save(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
         if (this.getById(hotel.getHotel_id()) != null) {
             Utility.showMessage("error");
             return false;
         }
-        return this.hotelDao.save(hotel);
+        return this.hotelDao.save(hotel, selectedAmenities, selectedPensions, enteredSeasons);
     }
 
     public boolean update(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {

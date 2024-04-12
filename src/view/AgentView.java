@@ -96,6 +96,21 @@ public class AgentView extends Layout {
 
         createTable(this.tmdl_hotels, this.tbl_hotels, col_hotel, hotelList);
 
+        this.hotel_menu.add("Add").addActionListener(e -> {
+            HotelView userView = new HotelView(new Hotel());
+            userView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
+
+                    loadHotelTable(null, selectedHotelId);
+                    loadPensionTable(null, selectedHotelId);
+                    loadAmenitiesTable(null, selectedHotelId);
+                    loadDiscountPeriodsTable(null, selectedHotelId);
+                }
+            });
+        });
+
         this.hotel_menu.add("Update").addActionListener(e -> {
             HotelView hotelView = new HotelView(this.hotelManager.getById(this.getTableSelectedRow(tbl_hotels, 0)));
             hotelView.addWindowListener(new WindowAdapter() {
