@@ -1,6 +1,7 @@
 package view;
 
 import business.HotelManager;
+import core.Utility;
 import entity.Hotel;
 import entity.User;
 
@@ -11,6 +12,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class AgentView extends Layout {
@@ -32,12 +35,10 @@ public class AgentView extends Layout {
     private Hotel hotel;
     private HotelManager hotelManager;
     private DefaultTableModel tmdl_hotels = new DefaultTableModel();
-//    private DefaultTableModel tmdl_pensions = new DefaultTableModel();
-//    private DefaultTableModel tmdl_amenities = new DefaultTableModel();
-//    private DefaultTableModel tmdl_discount_periods = new DefaultTableModel();
     private DefaultTableModel tmdl_pensions = new DefaultTableModel(new Object[]{"ID", "Pension Type"}, 0);
     private DefaultTableModel tmdl_amenities = new DefaultTableModel(new Object[]{"ID", "Amenity"}, 0);
     private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
+    private JPopupMenu hotel_menu;
     private Object[] col_hotel;
     private Object[] col_pension;
     private Object[] col_amenities;
@@ -57,7 +58,7 @@ public class AgentView extends Layout {
 
         loadComponent();
 
-        //start the details tables empty
+        //Start the hotel tables empty until a hotel is picked
         tbl_pension_types.setModel(tmdl_pensions);
         tbl_amenities.setModel(tmdl_amenities);
         tbl_discount_periods.setModel(tmdl_discount_periods);
@@ -79,6 +80,7 @@ public class AgentView extends Layout {
 
     private void loadHotelTable(List<Object[]> hotelList) {
         tableRowSelect(this.tbl_hotels);
+        this.hotel_menu = new JPopupMenu();
 
         col_hotel = new Object[]{"ID", "Hotel", "City", "District", "Star", "E-mail", "Phone", "Address"};
         if (hotelList == null) {
@@ -87,19 +89,55 @@ public class AgentView extends Layout {
 
         createTable(this.tmdl_hotels, this.tbl_hotels, col_hotel, hotelList);
 
+//        this.hotel_menu.add("Update").addActionListener(e -> {
+//            int selectedUserId = this.getTableSelectedRow(tbl_hotels, 0);
+//            HotelView hotelView = new HotelView(this.hotelManager.getById(selectedUserId));
+//            HotelView.addWindowListener(new WindowAdapter() {
+//                @Override
+//                public void windowClosed(WindowEvent e) {
+//                    loadHotelTable(null);
+//                }
+//            });
+//        });
+
+        this.hotel_menu.add("Remove").addActionListener(e -> {
+            if (Utility.confirm("confirm")) {
+                int selectUserId = this.getTableSelectedRow(tbl_hotels, 0);
+                if (this.hotelManager.delete(selectUserId)) {
+                    DefaultTableModel model = (DefaultTableModel) tbl_hotels.getModel();
+                    int selectedRow = tbl_hotels.getSelectedRow(); // Get the selected row index before removing
+                    model.removeRow(selectedRow);
+                    // Ensure that another row is selected to trigger the valueChanged event
+                    if (model.getRowCount() > 0) {
+                        // If there are rows remaining, select the next row
+                        if (selectedRow < model.getRowCount()) {
+                            tbl_hotels.setRowSelectionInterval(selectedRow, selectedRow);
+                        } else {
+                            // If the last row was deleted, select the previous row
+                            tbl_hotels.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+                        }
+                    }
+                    Utility.showMessage("done");
+                } else {
+                    Utility.showMessage("error");
+                }
+            }
+        });
+
+        this.tbl_hotels.setComponentPopupMenu(hotel_menu);
 
         tbl_hotels.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    int selectedRow = Integer.parseInt(tbl_hotels.getValueAt(tbl_hotels.getSelectedRow(), 0).toString());
-                    System.out.println(selectedRow);
-                    tbl_hotels.setSelectionBackground(Color.YELLOW); // Set background color of selected row
-                    tbl_hotels.setSelectionForeground(Color.BLACK);   // Set foreground color of selected row
-                    if (selectedRow != -1) {
-                        loadPensionTable(null, selectedRow);
-                        loadAmenitiesTable(null, selectedRow);
-                        loadDiscountPeriodsTable(null, selectedRow);
+                    int selectedRow = tbl_hotels.getSelectedRow();
+                    if (selectedRow != -1) { // Check if a row is selected
+                        int selectedHotelId = Integer.parseInt(tbl_hotels.getValueAt(selectedRow, 0).toString());
+                        tbl_hotels.setSelectionBackground(Color.YELLOW); // Set background color of selected row
+                        tbl_hotels.setSelectionForeground(Color.BLACK);   // Set foreground color of selected row
+                        loadPensionTable(null, selectedHotelId);
+                        loadAmenitiesTable(null, selectedHotelId);
+                        loadDiscountPeriodsTable(null, selectedHotelId);
                     }
                 }
             }

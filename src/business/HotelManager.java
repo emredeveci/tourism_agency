@@ -1,5 +1,6 @@
 package business;
 
+import core.Utility;
 import dao.HotelDao;
 import entity.Hotel;
 import entity.User;
@@ -29,6 +30,18 @@ public class HotelManager {
 
     public List<Object[]> findDiscountPeriods(int id) {
         return this.hotelDao.findDiscountPeriods(id);
+    }
+
+    public Hotel getById(int id) {
+        return this.hotelDao.getById(id);
+    }
+
+    public boolean delete(int id) {
+        if (this.getById(id) == null) {
+            Utility.showMessage("Hotel with ID " + id + " could not be found.");
+            return false;
+        }
+        return this.hotelDao.delete(id);
     }
 
     public List<Object[]> getForTable(int size, List<Hotel> hotelList) {

@@ -2,6 +2,7 @@ package dao;
 
 import core.DatabaseConnection;
 import entity.Hotel;
+import entity.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +18,34 @@ public class HotelDao {
 
     public HotelDao() {
         this.databaseConnection = DatabaseConnection.getInstance();
+    }
+
+    public Hotel getById(int id) {
+        Hotel obj = null;
+        String query = "SELECT * FROM public.hotels WHERE hotel_id = ?";
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, id);
+            ResultSet rs = pr.executeQuery();
+            if (rs.next()) {
+                obj = this.match(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return obj;
+    }
+
+    public boolean delete(int id) {
+        String query = "DELETE FROM public.hotels WHERE hotel_id = ?";
+        try {
+            PreparedStatement pr = databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, id);
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     public List<Hotel> findAll() {
@@ -57,7 +86,6 @@ public class HotelDao {
             e.printStackTrace();
         }
 
-        System.out.println(pensionData);
         return pensionData;
     }
 
@@ -84,7 +112,6 @@ public class HotelDao {
             e.printStackTrace();
         }
 
-        System.out.println(amenityData);
         return amenityData;
     }
 
