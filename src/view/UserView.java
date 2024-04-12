@@ -48,7 +48,7 @@ public class UserView extends Layout {
                     result = this.userManager.save(this.user);
                 }
 
-                if(result){
+                if (result) {
                     Utility.showMessage("done");
                     dispose();
                 } else {

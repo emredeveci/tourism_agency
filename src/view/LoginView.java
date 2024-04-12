@@ -25,7 +25,7 @@ public class LoginView extends Layout {
     public LoginView() {
         this.userManager = new UserManager();
         this.add(container);
-        this.guiInitialize(300,300);
+        this.guiInitialize(300, 300);
 
         btn_login.addActionListener(e -> handleLogin());
 
@@ -53,14 +53,14 @@ public class LoginView extends Layout {
     private void handleLogin() {
         JTextField[] formFieldList = {this.fld_username, this.fld_password};
 
-        if(Utility.isFieldListEmpty(formFieldList)){
+        if (Utility.isFieldListEmpty(formFieldList)) {
             Utility.showMessage("fill");
         } else {
             User loginUser = this.userManager.findByLogin(this.fld_username.getText(), this.fld_password.getText());
             if (loginUser == null) {
                 Utility.showMessage("notFound");
             } else {
-                if (Objects.equals(loginUser.getRole(), "admin")){
+                if (Objects.equals(loginUser.getRole(), "admin")) {
                     AdminView adminView = new AdminView(loginUser);
                     dispose();
                 } else {

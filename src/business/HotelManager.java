@@ -11,12 +11,24 @@ public class HotelManager {
 
     private final HotelDao hotelDao;
 
-    public HotelManager(){
+    public HotelManager() {
         this.hotelDao = new HotelDao();
     }
 
     public List<Hotel> findAll() {
         return this.hotelDao.findAll();
+    }
+
+    public List<Object[]> findAllPensions(int id) {
+        return this.hotelDao.findAllPensions(id);
+    }
+
+    public List<Object[]> findAllAmenities(int id) {
+        return this.hotelDao.findAllAmenities(id);
+    }
+
+    public List<Object[]> findDiscountPeriods(int id) {
+        return this.hotelDao.findDiscountPeriods(id);
     }
 
     public List<Object[]> getForTable(int size, List<Hotel> hotelList) {

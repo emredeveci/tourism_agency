@@ -75,15 +75,15 @@ public class AdminView extends Layout {
         createTable(this.tmdl_user, this.tbl_user, col_user, userList);
     }
 
-    public void loadUserSearch(){
+    public void loadUserSearch() {
         this.cmb_user_role.setModel(new DefaultComboBoxModel<>(userRoles));
 
-        btn_user_search.addActionListener(e->{
+        btn_user_search.addActionListener(e -> {
             List<User> userList = this.userManager.searchForUsers(Objects.requireNonNull(cmb_user_role.getSelectedItem()).toString());
             List<Object[]> userRow = this.userManager.getForTable(this.col_user.length, userList);
             loadUserTable(userRow);
         });
-        btn_user_clear.addActionListener(e->{
+        btn_user_clear.addActionListener(e -> {
             loadUserTable(null);
         });
 
@@ -93,7 +93,7 @@ public class AdminView extends Layout {
         tableRowSelect(this.tbl_user);
         this.user_menu = new JPopupMenu();
 
-        this.user_menu.add("Add").addActionListener(e->{
+        this.user_menu.add("Add").addActionListener(e -> {
             UserView userView = new UserView(new User());
             userView.addWindowListener(new WindowAdapter() {
                 @Override

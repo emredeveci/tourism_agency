@@ -59,10 +59,10 @@ public class UserDao {
         return true;
     }
 
-    public boolean delete(int id){
+    public boolean delete(int id) {
         String query = "DELETE FROM public.users WHERE user_id = ?";
 
-        try{
+        try {
             PreparedStatement pr = databaseConnection.getConnection().prepareStatement(query);
             pr.setInt(1, id);
             return pr.executeUpdate() != -1;
@@ -121,7 +121,7 @@ public class UserDao {
         return null;
     }
 
-    public List<User> selectByQuery(String query){
+    public List<User> selectByQuery(String query) {
         List<User> users = new ArrayList<>();
         try {
             ResultSet rs = this.databaseConnection.getConnection().createStatement().executeQuery(query);
@@ -142,7 +142,6 @@ public class UserDao {
         user.setRole(rs.getString("role"));
         return user;
     }
-
 
 
 }

@@ -1,5 +1,7 @@
 package entity;
 
+import java.util.List;
+
 public class Hotel {
     private int hotel_id;
     private String hotel_name;
@@ -9,6 +11,7 @@ public class Hotel {
     private String email;
     private String phone;
     private String address;
+    private List<PensionType> pensionTypes;
 
     public Hotel() {
     }
@@ -75,5 +78,13 @@ public class Hotel {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public List<PensionType> getPensionTypes() {
+        return pensionTypes;
+    }
+
+    public void setPensionTypes(List<PensionType> pensionTypes) {
+        this.pensionTypes = pensionTypes;
     }
 }

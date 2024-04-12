@@ -65,10 +65,10 @@ public class UserManager {
         return userObjList;
     }
 
-    public List<User> searchForUsers(String role){
+    public List<User> searchForUsers(String role) {
         String query = "SELECT * FROM public.users WHERE role = ";
 
-        if(role != null){
+        if (role != null) {
             query += "'" + role + "'";
         }
         return this.userDao.selectByQuery(query);
