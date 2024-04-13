@@ -1,6 +1,7 @@
 package view;
 
 import business.HotelManager;
+import business.RoomManager;
 import core.Utility;
 import entity.Hotel;
 import entity.User;
@@ -9,7 +10,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -30,19 +30,27 @@ public class AgentView extends Layout {
     private JScrollPane scrl_amenities;
     private JTable tbl_discount_periods;
     private JScrollPane scrl_discount_periods;
+    private JScrollPane scrl_rooms;
+    private JTable tbl_rooms;
+    private JPanel pnl_details;
 
     private User user;
     private Hotel hotel;
     private HotelManager hotelManager;
+    private RoomManager roomManager;
     private DefaultTableModel tmdl_hotels = new DefaultTableModel();
+    private DefaultTableModel tmdl_rooms = new DefaultTableModel();
     private DefaultTableModel tmdl_pensions = new DefaultTableModel(new Object[]{"ID", "Pension Type"}, 0);
     private DefaultTableModel tmdl_amenities = new DefaultTableModel(new Object[]{"ID", "Amenity"}, 0);
     private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
+    private DefaultTableModel tmdl_room_details_left = new DefaultTableModel(new Object[]{"ID", "Bed Capacity", "Room Size"}, 0);
+    private DefaultTableModel tmdl_room_details_right = new DefaultTableModel(new Object[]{"ID", "Room Features"}, 0);
     private JPopupMenu hotel_menu;
     private Object[] col_hotel;
     private Object[] col_pension;
     private Object[] col_amenities;
     private Object[] col_discount;
+    private Object[] col_rooms;
 
 
 
@@ -51,6 +59,7 @@ public class AgentView extends Layout {
         this.guiInitialize(1000, 700);
         this.user = user;
         this.hotelManager = new HotelManager();
+        this.roomManager = new RoomManager();
 
         if (this.user == null) {
             dispose();
@@ -68,7 +77,19 @@ public class AgentView extends Layout {
         //Tab: Hotels
         loadHotelTable(null);
 
+        //Tab: Rooms
+        loadRoomsTable();
 
+
+    }
+
+    private void loadRoomsTable(){
+        tableRowSelect(this.tbl_rooms);
+
+        col_rooms = new Object[]{"ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
+        List<Object[]> roomList = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
+
+        createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, roomList);
     }
 
     private void loadComponent() {

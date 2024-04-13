@@ -32,35 +32,6 @@ public class HotelDao {
         return obj;
     }
 
-//    public boolean save(Hotel hotel) {
-//        String query = "INSERT INTO public.hotels " +
-//                "(" +
-//                "hotel_name," +
-//                "star_rating," +
-//                "city," +
-//                "district," +
-//                "email," +
-//                "phone," +
-//                "address" +
-//                ")" +
-//                " VALUES (?, ?, ?, ?, ?, ?, ?)";
-//
-//        try {
-//            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
-//            pr.setString(1, hotel.getHotel_name());
-//            pr.setInt(2, hotel.getStar_rating());
-//            pr.setString(3, hotel.getCity());
-//            pr.setString(4, hotel.getDistrict());
-//            pr.setString(5, hotel.getEmail());
-//            pr.setString(6, hotel.getPhone());
-//            pr.setString(7, hotel.getAddress());
-//            return pr.executeUpdate() != -1;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return true;
-//    }
-
     public boolean save(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
         String query = "INSERT INTO public.hotels " +
                 "(hotel_name, star_rating, city, district, email, phone, address) " +
