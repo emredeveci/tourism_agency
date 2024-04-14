@@ -34,6 +34,12 @@ public class AgentView extends Layout {
     private JScrollPane scrl_rooms;
     private JTable tbl_rooms;
     private JPanel pnl_details;
+    private JTable tbl_room_details;
+    private JTable tbl_room_features;
+    private JScrollPane scrl_room_details;
+    private JScrollPane scrl_room_features;
+    private JLabel lbl_room_details;
+    private JLabel lbl_room_features;
 
     private User user;
     private Hotel hotel;
@@ -45,14 +51,17 @@ public class AgentView extends Layout {
     private DefaultTableModel tmdl_pensions = new DefaultTableModel(new Object[]{"ID", "Pension Type"}, 0);
     private DefaultTableModel tmdl_amenities = new DefaultTableModel(new Object[]{"ID", "Amenity"}, 0);
     private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
-    private DefaultTableModel tmdl_room_details_left = new DefaultTableModel(new Object[]{"ID", "Bed Capacity", "Room Size"}, 0);
-    private DefaultTableModel tmdl_room_details_right = new DefaultTableModel(new Object[]{"ID", "Room Features"}, 0);
+    private DefaultTableModel tmdl_room_details = new DefaultTableModel(new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"}, 0);
+    private DefaultTableModel tmdl_room_features = new DefaultTableModel(new Object[]{"Inventory ID", "Room Features"}, 0);
     private JPopupMenu hotel_menu;
+    private JPopupMenu room_menu;
     private Object[] col_hotel;
     private Object[] col_pension;
     private Object[] col_amenities;
     private Object[] col_discount;
     private Object[] col_rooms;
+    private Object[] col_room_details;
+    private Object[] col_room_features;
 
 
 
@@ -75,6 +84,8 @@ public class AgentView extends Layout {
         tbl_pension_types.setModel(tmdl_pensions);
         tbl_amenities.setModel(tmdl_amenities);
         tbl_discount_periods.setModel(tmdl_discount_periods);
+        tbl_room_details.setModel(tmdl_room_details);
+        tbl_room_features.setModel(tmdl_room_features);
 
         //Tab: Hotels
         loadHotelTable(null);
@@ -87,11 +98,53 @@ public class AgentView extends Layout {
 
     private void loadRoomsTable(){
         tableRowSelect(this.tbl_rooms);
+        this.room_menu = new JPopupMenu();
 
-        col_rooms = new Object[]{"Inventory", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
+        col_rooms = new Object[]{"Inventory ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
         List<Object[]> roomList = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
 
         createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, roomList);
+
+        this.room_menu.add("Remove").addActionListener(e -> {
+            if (Utility.confirm("confirm")) {
+                int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
+                if (this.roomManager.delete(selectInventoryId)) {
+                    DefaultTableModel model = (DefaultTableModel) tbl_rooms.getModel();
+                    int selectedRow = tbl_hotels.getSelectedRow(); // Get the selected row index before removing
+                    model.removeRow(selectedRow);
+                    // Ensure that another row is selected to trigger the valueChanged event
+                    if (model.getRowCount() > 0) {
+                        // If there are rows remaining, select the next row
+                        if (selectedRow < model.getRowCount()) {
+                            tbl_rooms.setRowSelectionInterval(selectedRow, selectedRow);
+                        } else {
+                            // If the last row was deleted, select the previous row
+                            tbl_rooms.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+                        }
+                    }
+                    Utility.showMessage("done");
+                } else {
+                    Utility.showMessage("error");
+                }
+            }
+        });
+
+        this.tbl_rooms.setComponentPopupMenu(room_menu);
+
+        tbl_rooms.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = tbl_rooms.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int selectedInventoryId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
+                        loadRoomsTable();
+                        loadRoomDetailsTable(null, selectedInventoryId);
+                        loadRoomFeaturesTable(null, selectedInventoryId);
+                    }
+                }
+            }
+        });
     }
 
     private void loadComponent() {
@@ -211,6 +264,22 @@ public class AgentView extends Layout {
         if (discountPeriodsList == null) {
             List<Object[]> discountPeriods = this.hotelManager.findDiscountPeriods(selectedRow);
             createTable(this.tmdl_discount_periods, this.tbl_discount_periods, col_discount, discountPeriods);
+        }
+    }
+
+    private void loadRoomDetailsTable(List<Object> roomDetailsList, int selectedInventoryId){
+        col_room_details = new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"};
+        if(roomDetailsList == null){
+            List<Object[]> roomDetails = this.roomManager.findAllRoomDetails(selectedInventoryId);
+            createTable(this.tmdl_room_details, this.tbl_room_details, col_room_details, roomDetails);
+        }
+    }
+
+    private void loadRoomFeaturesTable(List<Object> roomFeaturesList, int selectedInventoryId){
+        col_room_features = new Object[]{"Inventory ID", "Room Features"};
+        if(roomFeaturesList == null){
+            List<Object[]> roomFeatures = this.roomManager.findAllRoomFeatures(selectedInventoryId);
+            createTable(this.tmdl_room_features, this.tbl_room_features, col_room_features, roomFeatures);
         }
     }
 

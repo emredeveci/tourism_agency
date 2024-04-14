@@ -1,6 +1,7 @@
 package dao;
 
 import core.DatabaseConnection;
+import entity.Hotel;
 import entity.Room;
 
 import java.sql.*;
@@ -15,11 +16,27 @@ public class RoomDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
+    public Room getById(int id) {
+        Room obj = null;
+        String query = "SELECT * FROM public.room_inventory WHERE inventory_id = ?";
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, id);
+            ResultSet rs = pr.executeQuery();
+            if (rs.next()) {
+                obj = this.match(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return obj;
+    }
+
     public List<Room> findAll(){
         List<Room> roomList = new ArrayList<>();
 
         // Prepare SQL query
-        String sql = "SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
+        String query = "SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
                 "FROM room_inventory ri " +
                 "JOIN hotels h ON ri.hotel_id = h.hotel_id " +
                 "LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id " +
@@ -32,7 +49,7 @@ public class RoomDao {
                 "AND (p2.pension_id IS NULL OR pt.pension_id = p2.pension_id)";
 
         try (Connection connection = databaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
             // Iterate over the result set
             while (resultSet.next()) {
@@ -58,4 +75,71 @@ public class RoomDao {
         return roomList;
     }
 
+    public boolean delete(int inventoryId) {
+        String query = "DELETE FROM public.room_inventory WHERE inventory_id = ?";
+        try {
+            PreparedStatement pr = databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, inventoryId);
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public List<Object[]> findAllRoomDetails(int inventoryId){
+        List<Object[]> roomDetailsData = new ArrayList<>();
+
+        String query = "SELECT inventory_id, bed_count, room_size " +
+                "FROM room_inventory " +
+                "WHERE inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int inventory = resultSet.getInt("inventory_id");
+                int bedCount = resultSet.getInt("bed_count");
+                String roomSize = resultSet.getString("room_size");
+                Object[] rowData = {inventory, bedCount, roomSize};
+                roomDetailsData.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return roomDetailsData;
+    }
+
+    public List<Object[]> findAllRoomFeatures(int inventoryId){
+        List<Object[]> roomFeaturesData = new ArrayList<>();
+        String query = "SELECT hrf.inventory_id, rft.feature_type " +
+                "FROM hotel_room_features hrf " +
+                "JOIN room_feature_types rft ON hrf.feature_type_id = rft.room_feature_id " +
+                "WHERE hrf.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int inventory = resultSet.getInt("inventory_id");
+                String featureType = resultSet.getString("feature_type");
+                Object[] rowData = {inventory, featureType};
+                roomFeaturesData.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return roomFeaturesData;
+    }
+
+    public Room match(ResultSet rs) throws SQLException {
+        Room room = new Room();
+        room.setInventory_id(rs.getInt("inventory_id"));
+        return room;
+    }
 }

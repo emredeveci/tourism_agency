@@ -1,5 +1,6 @@
 package business;
 
+import core.Utility;
 import dao.RoomDao;
 import entity.Hotel;
 import entity.Room;
@@ -15,8 +16,28 @@ public class RoomManager {
         this.roomDao = new RoomDao();
     }
 
+    public boolean delete(int inventoryId) {
+        if (this.getByInventoryId(inventoryId) == null) {
+            Utility.showMessage("Hotel with ID " + inventoryId + " could not be found.");
+            return false;
+        }
+        return this.roomDao.delete(inventoryId);
+    }
+
+    public Room getByInventoryId(int inventoryId) {
+        return this.roomDao.getById(inventoryId);
+    }
+
     public List<Room> findAll(){
         return this.roomDao.findAll();
+    }
+
+    public List<Object[]> findAllRoomDetails(int inventoryId) {
+        return this.roomDao.findAllRoomDetails(inventoryId);
+    }
+
+    public List<Object[]> findAllRoomFeatures(int inventoryId){
+        return this.roomDao.findAllRoomFeatures(inventoryId);
     }
 
     public List<Object[]> getForTable(int size, List<Room> roomList){
