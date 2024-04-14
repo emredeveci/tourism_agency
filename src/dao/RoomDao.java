@@ -16,9 +16,20 @@ public class RoomDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
-    public Room getById(int id) {
+    public Room getByInventoryId(int id) {
         Room obj = null;
-        String query = "SELECT * FROM public.room_inventory WHERE inventory_id = ?";
+        String query = "SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
+                "FROM room_inventory ri " +
+                "JOIN hotels h ON ri.hotel_id = h.hotel_id " +
+                "LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id " +
+                "LEFT JOIN pension_types pt ON hp.pension_id = pt.pension_id " +
+                "LEFT JOIN price p ON ri.inventory_id = p.inventory_id AND p.guest_id = 1 " +
+                "LEFT JOIN price p2 ON ri.inventory_id = p2.inventory_id AND p2.guest_id = 2 " +
+                "LEFT JOIN discount_periods dp ON p.discount_id = dp.discount_id " +
+                "JOIN room_types rt ON ri.room_type_id = rt.room_type_id " +
+                "WHERE (p.pension_id IS NULL OR pt.pension_id = p.pension_id) " +
+                "AND (p2.pension_id IS NULL OR pt.pension_id = p2.pension_id) " +
+                "AND ri.inventory_id = ?";
         try {
             PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
             pr.setInt(1, id);
@@ -140,6 +151,13 @@ public class RoomDao {
     public Room match(ResultSet rs) throws SQLException {
         Room room = new Room();
         room.setInventory_id(rs.getInt("inventory_id"));
+        room.setHotel_name(rs.getString("hotel_name"));
+        room.setPension_type(rs.getString("pension_type"));
+        room.setDiscount_id(rs.getInt("discount_id"));
+        room.setRoom_type(rs.getString("room_type_name"));
+        room.setQuantity_available(rs.getInt("quantity_available"));
+        room.setAdult_price(rs.getDouble("adult_price"));
+        room.setChild_price(rs.getDouble("child_price"));
         return room;
     }
 }

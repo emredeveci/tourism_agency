@@ -1,8 +1,12 @@
 package view;
 
-import javax.swing.*;
+import business.RoomManager;
+import entity.Room;
 
-public class RoomView {
+import javax.swing.*;
+import java.util.List;
+
+public class RoomView extends Layout {
     private JPanel container;
     private JComboBox cmb_rooms_hotel_name;
     private JComboBox cmb_rooms_room_type;
@@ -22,4 +26,66 @@ public class RoomView {
     private JCheckBox cbox_rooms_safe;
     private JButton SUBMITButton;
     private JLabel lbl_rooms_title;
+
+    private Room room;
+    private RoomManager roomManager;
+
+    public RoomView(Room room){
+        this.room = room;
+        this.roomManager = new RoomManager();
+        this.add(container);
+        this.guiInitialize(1000, 700);
+
+        if(room != null){
+            this.cmb_rooms_hotel_name.getModel().setSelectedItem(this.room.getHotel_name());
+            this.cmb_rooms_pension_type.getModel().setSelectedItem(this.room.getPension_type());
+            this.cmb_rooms_room_type.getModel().setSelectedItem(this.room.getRoom_type());
+            this.cmb_rooms_season.getModel().setSelectedItem(this.room.getDiscount_id());
+            this.fld_rooms_stock.setText(String.valueOf(room.getQuantity_available()));
+            this.fld_rooms_adult_price.setText(String.valueOf(room.getAdult_price()));
+            this.fld_rooms_child_price.setText(String.valueOf(room.getChild_price()));
+
+            List<Object[]> roomDetailsData = roomManager.findAllRoomDetails(room.getInventory_id());
+            List<Object[]> roomFeaturesData = roomManager.findAllRoomFeatures(room.getInventory_id());
+
+            preselectRoomFeaturesCheckboxes(roomFeaturesData);
+            prefillRoomDetailsTextFields(roomDetailsData);
+        }
+    }
+
+    private void preselectRoomFeaturesCheckboxes(List<Object[]> roomFeaturesData) {
+        if (roomFeaturesData != null) {
+            for (Object[] rowData : roomFeaturesData) {
+                String featureName = (String) rowData[1];
+                switch (featureName) {
+                    case "Television":
+                        cbox_rooms_television.setSelected(true);
+                        break;
+                    case "Minibar":
+                        cbox_rooms_minibar.setSelected(true);
+                        break;
+                    case "Gaming console":
+                        cbox_rooms_console.setSelected(true);
+                        break;
+                    case "Safe":
+                        cbox_rooms_safe.setSelected(true);
+                        break;
+                    case "Projector":
+                        cbox_rooms_projector.setSelected(true);
+                        break;
+                }
+            }
+        }
+    }
+
+    private void prefillRoomDetailsTextFields(List<Object[]> roomDetailsData) {
+        if (roomDetailsData != null) {
+            for (Object[] rowData : roomDetailsData) {
+                String numberOfBeds = rowData[1].toString();
+                String roomSize = (String) rowData[2];
+                this.fld_rooms_beds.setText(numberOfBeds);
+                this.fld_rooms_size.setText(roomSize);
+            }
+        }
+    }
 }

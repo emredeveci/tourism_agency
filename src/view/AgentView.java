@@ -78,14 +78,14 @@ public class AgentView extends Layout {
 
         this.lbl_greeting.setText("Welcome, " + this.user.getUsername());
 
-        loadComponent();
-
-        //Start the hotel tables empty until a hotel is picked
+        //Start the tables empty until aa row is picked
         tbl_pension_types.setModel(tmdl_pensions);
         tbl_amenities.setModel(tmdl_amenities);
         tbl_discount_periods.setModel(tmdl_discount_periods);
         tbl_room_details.setModel(tmdl_room_details);
         tbl_room_features.setModel(tmdl_room_features);
+
+        loadComponent();
 
         //Tab: Hotels
         loadHotelTable(null);
@@ -98,19 +98,19 @@ public class AgentView extends Layout {
 
     private void loadRoomsTable(){
         tableRowSelect(this.tbl_rooms);
-        this.room_menu = new JPopupMenu();
 
         col_rooms = new Object[]{"Inventory ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
         List<Object[]> roomList = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
 
         createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, roomList);
 
+        this.room_menu = new JPopupMenu();
         this.room_menu.add("Remove").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
                 int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
                 if (this.roomManager.delete(selectInventoryId)) {
                     DefaultTableModel model = (DefaultTableModel) tbl_rooms.getModel();
-                    int selectedRow = tbl_hotels.getSelectedRow(); // Get the selected row index before removing
+                    int selectedRow = tbl_rooms.getSelectedRow(); // Get the selected row index before removing
                     model.removeRow(selectedRow);
                     // Ensure that another row is selected to trigger the valueChanged event
                     if (model.getRowCount() > 0) {
@@ -129,6 +129,19 @@ public class AgentView extends Layout {
             }
         });
 
+        this.room_menu.add("Update").addActionListener(e -> {
+            RoomView roomView = new RoomView(this.roomManager.getByInventoryId(this.getTableSelectedRow(tbl_rooms, 0)));
+            roomView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    int selectedInventoryId = getTableSelectedRow(tbl_rooms, 0);
+                    loadRoomsTable();
+                    loadRoomDetailsTable(null, selectedInventoryId);
+                    loadRoomFeaturesTable(null, selectedInventoryId);
+                }
+            });
+        });
+
         this.tbl_rooms.setComponentPopupMenu(room_menu);
 
         tbl_rooms.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -138,7 +151,6 @@ public class AgentView extends Layout {
                     int selectedRow = tbl_rooms.getSelectedRow();
                     if (selectedRow != -1) {
                         int selectedInventoryId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
-                        loadRoomsTable();
                         loadRoomDetailsTable(null, selectedInventoryId);
                         loadRoomFeaturesTable(null, selectedInventoryId);
                     }

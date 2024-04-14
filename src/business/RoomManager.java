@@ -18,14 +18,14 @@ public class RoomManager {
 
     public boolean delete(int inventoryId) {
         if (this.getByInventoryId(inventoryId) == null) {
-            Utility.showMessage("Hotel with ID " + inventoryId + " could not be found.");
+            Utility.showMessage("Room with ID " + inventoryId + " could not be found.");
             return false;
         }
         return this.roomDao.delete(inventoryId);
     }
 
     public Room getByInventoryId(int inventoryId) {
-        return this.roomDao.getById(inventoryId);
+        return this.roomDao.getByInventoryId(inventoryId);
     }
 
     public List<Room> findAll(){
