@@ -4,6 +4,7 @@ import business.HotelManager;
 import business.RoomManager;
 import core.Utility;
 import entity.Hotel;
+import entity.Room;
 import entity.User;
 
 import javax.swing.*;
@@ -36,6 +37,7 @@ public class AgentView extends Layout {
 
     private User user;
     private Hotel hotel;
+    private Room room;
     private HotelManager hotelManager;
     private RoomManager roomManager;
     private DefaultTableModel tmdl_hotels = new DefaultTableModel();
@@ -86,7 +88,7 @@ public class AgentView extends Layout {
     private void loadRoomsTable(){
         tableRowSelect(this.tbl_rooms);
 
-        col_rooms = new Object[]{"ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
+        col_rooms = new Object[]{"Inventory", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
         List<Object[]> roomList = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
 
         createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, roomList);
