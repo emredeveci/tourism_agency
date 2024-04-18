@@ -5,9 +5,7 @@ import entity.Hotel;
 import entity.Room;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class RoomDao {
 
@@ -149,10 +147,8 @@ public class RoomDao {
         return roomFeaturesData;
     }
 
-    public String[] findRoomTypesForHotel(int inventoryId){
+    public String[] findRoomTypesForHotel(int selectedHotelId){
         List<String> roomTypes = new ArrayList<>();
-
-        int hotelId = findHotelIdByInventoryId(inventoryId);
 
         String query = "SELECT DISTINCT rt.room_type_name " +
                 "FROM room_inventory ri " +
@@ -161,7 +157,7 @@ public class RoomDao {
 
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, hotelId);
+            statement.setInt(1, selectedHotelId);
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -256,7 +252,22 @@ public class RoomDao {
         return hotelId;
     }
 
-
+    public Map<Integer, String> getHotelNames() {
+        Map<Integer, String> hotelMap = new HashMap<>();
+        String query = "SELECT hotel_id, hotel_name FROM hotels";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                int hotelId = resultSet.getInt("hotel_id");
+                String hotelName = resultSet.getString("hotel_name");
+                hotelMap.put(hotelId, hotelName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return hotelMap;
+    }
 
     public Room match(ResultSet rs) throws SQLException {
         Room room = new Room();

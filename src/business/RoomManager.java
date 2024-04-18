@@ -7,6 +7,7 @@ import entity.Room;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RoomManager {
 
@@ -56,7 +57,9 @@ public class RoomManager {
         return this.roomDao.findHotelIdByInventoryId(inventoryId);
     }
 
-
+    public Map<Integer, String> getHotelNames(){
+        return this.roomDao.getHotelNames();
+    }
 
     public List<Object[]> getForTable(int size, List<Room> roomList){
         List<Object[]> roomObjList = new ArrayList<>();
