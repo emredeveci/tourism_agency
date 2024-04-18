@@ -40,7 +40,7 @@ public class RoomView extends Layout {
     private Room room;
     private RoomManager roomManager;
 
-    public RoomView(Room room){
+    public RoomView(){
         this.room = room;
         this.roomManager = new RoomManager();
         this.add(container);
@@ -63,32 +63,30 @@ public class RoomView extends Layout {
                 }
 
                 System.out.println("Selected hotel ID: " + selectedHotelId);
-                cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(selectedHotelId)));
-                cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(selectedHotelId)));
-                cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(selectedHotelId)));
+//                cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(selectedHotelId)));
+//                cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(selectedHotelId)));
+//                cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(selectedHotelId)));
             }
         });
 
-
-
-        if(room != null){
-            this.cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(room.getInventory_id())));
-            this.cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(room.getInventory_id())));
-            this.cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(room.getInventory_id())));
-            this.cmb_rooms_hotel_name.getModel().setSelectedItem(this.room.getHotel_name());
-            this.cmb_rooms_pension_type.getModel().setSelectedItem(this.room.getPension_type());
-            this.cmb_rooms_room_type.getModel().setSelectedItem(this.room.getRoom_type());
-            this.cmb_rooms_season.getModel().setSelectedItem(this.room.getDiscount_id());
-            this.fld_rooms_stock.setText(String.valueOf(room.getQuantity_available()));
-            this.fld_rooms_adult_price.setText(String.valueOf(room.getAdult_price()));
-            this.fld_rooms_child_price.setText(String.valueOf(room.getChild_price()));
-
-            List<Object[]> roomDetailsData = roomManager.findAllRoomDetails(room.getInventory_id());
-            List<Object[]> roomFeaturesData = roomManager.findAllRoomFeatures(room.getInventory_id());
-
+//        if(room != null){
+//            this.cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(room.getInventory_id())));
+//            this.cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(room.getInventory_id())));
+//            this.cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(room.getInventory_id())));
+//            this.cmb_rooms_hotel_name.getModel().setSelectedItem(this.room.getHotel_name());
+//            this.cmb_rooms_pension_type.getModel().setSelectedItem(this.room.getPension_type());
+//            this.cmb_rooms_room_type.getModel().setSelectedItem(this.room.getRoom_type());
+//            this.cmb_rooms_season.getModel().setSelectedItem(this.room.getDiscount_id());
+//            this.fld_rooms_stock.setText(String.valueOf(room.getQuantity_available()));
+//            this.fld_rooms_adult_price.setText(String.valueOf(room.getAdult_price()));
+//            this.fld_rooms_child_price.setText(String.valueOf(room.getChild_price()));
+//
+//            List<Object[]> roomDetailsData = roomManager.findAllRoomDetails(room.getInventory_id());
+//            List<Object[]> roomFeaturesData = roomManager.findAllRoomFeatures(room.getInventory_id());
+//
 //            preselectRoomFeaturesCheckboxes(roomFeaturesData);
 //            prefillRoomDetailsTextFields(roomDetailsData);
-        }
+//        }
     }
 
 //    private void preselectRoomFeaturesCheckboxes(List<Object[]> roomFeaturesData) {
@@ -156,9 +154,5 @@ public class RoomView extends Layout {
         }
         cmb_rooms_hotel_name.setModel(model);
     }
-
-
-
-
 
 }

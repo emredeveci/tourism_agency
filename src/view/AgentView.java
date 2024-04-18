@@ -129,15 +129,25 @@ public class AgentView extends Layout {
             }
         });
 
-        this.room_menu.add("Update").addActionListener(e -> {
-            RoomView roomView = new RoomView(this.roomManager.getByInventoryId(this.getTableSelectedRow(tbl_rooms, 0)));
+//        this.room_menu.add("Update").addActionListener(e -> {
+//            RoomView roomView = new RoomView(this.roomManager.getByInventoryId(this.getTableSelectedRow(tbl_rooms, 0)));
+//            roomView.addWindowListener(new WindowAdapter() {
+//                @Override
+//                public void windowClosed(WindowEvent e) {
+//                    int selectedInventoryId = getTableSelectedRow(tbl_rooms, 0);
+//                    loadRoomsTable();
+//                    loadRoomDetailsTable(null, selectedInventoryId);
+//                    loadRoomFeaturesTable(null, selectedInventoryId);
+//                }
+//            });
+//        });
+
+        this.room_menu.add("Add").addActionListener(e -> {
+            RoomView roomView = new RoomView();
             roomView.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    int selectedInventoryId = getTableSelectedRow(tbl_rooms, 0);
                     loadRoomsTable();
-                    loadRoomDetailsTable(null, selectedInventoryId);
-                    loadRoomFeaturesTable(null, selectedInventoryId);
                 }
             });
         });
