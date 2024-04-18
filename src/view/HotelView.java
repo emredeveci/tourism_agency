@@ -75,12 +75,13 @@ public class HotelView extends Layout {
             List<Object[]> pensionTypesData = hotelManager.findAllPensions(hotel.getHotel_id());
             List<LocalDate[]> preselectSeasons = hotelManager.findEnteredSeasons(hotel.getHotel_id());
 
-            // Preselect checkboxes for amenities
+            // Pre-select checkboxes for amenities
             preselectAmenityCheckboxes(amenitiesData);
 
-            // Preselect checkboxes for pension types
+            // Pre-select checkboxes for pension types
             preselectPensionTypeCheckboxes(pensionTypesData);
 
+            // Pre-fill checkboxes for pension types
             preselectSeasonFields(preselectSeasons);
 
 

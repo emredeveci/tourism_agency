@@ -6,6 +6,7 @@ import entity.Room;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RoomDao {
@@ -147,6 +148,115 @@ public class RoomDao {
         }
         return roomFeaturesData;
     }
+
+    public String[] findRoomTypesForHotel(int inventoryId){
+        List<String> roomTypes = new ArrayList<>();
+
+        int hotelId = findHotelIdByInventoryId(inventoryId);
+
+        String query = "SELECT DISTINCT rt.room_type_name " +
+                "FROM room_inventory ri " +
+                "JOIN room_types rt ON ri.room_type_id = rt.room_type_id " +
+                "WHERE ri.hotel_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, hotelId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String roomType = resultSet.getString("room_type_name");
+                roomTypes.add(roomType);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String[] roomTypesArray = new String[roomTypes.size()];
+        roomTypesArray = roomTypes.toArray(roomTypesArray);
+        System.out.println(Arrays.toString(roomTypesArray));
+
+        return roomTypesArray;
+    }
+
+    public String[] getPensionTypesForHotel(int inventoryId){
+        List<String> pensionTypes = new ArrayList<>();
+        int hotelId = findHotelIdByInventoryId(inventoryId);
+
+        String query = "SELECT pt.pension_type " +
+                "FROM hotel_pensions hp " +
+                "JOIN pension_types pt ON hp.pension_id = pt.pension_id " +
+                "WHERE hp.hotel_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, hotelId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String roomType = resultSet.getString("pension_type");
+                pensionTypes.add(roomType);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String[] pensionTypesArray = new String[pensionTypes.size()];
+        pensionTypesArray = pensionTypes.toArray(pensionTypesArray);
+        System.out.println(Arrays.toString(pensionTypesArray));
+
+        return pensionTypesArray;
+    }
+
+    public String[] getSeasonTypesForHotel(int inventoryId){
+        List<String> seasonTypes = new ArrayList<>();
+        int hotelId = findHotelIdByInventoryId(inventoryId);
+
+        String query = "SELECT dp.discount_id " +
+                "FROM discount_periods dp " +
+                "WHERE dp.hotel_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, hotelId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String roomType = resultSet.getString("discount_id");
+                seasonTypes.add(roomType);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        String[] seasonTypesArray = new String[seasonTypes.size()];
+        seasonTypesArray = seasonTypes.toArray(seasonTypesArray);
+        System.out.println(Arrays.toString(seasonTypesArray));
+
+        return seasonTypesArray;
+
+    }
+
+    public int findHotelIdByInventoryId(int inventoryId) {
+        int hotelId = -1;
+
+        String query = "SELECT hotel_id FROM room_inventory WHERE inventory_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                hotelId = resultSet.getInt("hotel_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hotelId;
+    }
+
+
 
     public Room match(ResultSet rs) throws SQLException {
         Room room = new Room();

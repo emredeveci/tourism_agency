@@ -40,6 +40,24 @@ public class RoomManager {
         return this.roomDao.findAllRoomFeatures(inventoryId);
     }
 
+    public String[] getRoomTypesForHotel(int inventoryId){
+        return this.roomDao.findRoomTypesForHotel(inventoryId);
+    }
+
+    public String[] getPensionTypesForHotel(int inventoryId){
+        return this.roomDao.getPensionTypesForHotel(inventoryId);
+    }
+
+    public String[] getSeasonTypesForHotel(int inventoryId){
+        return this.roomDao.getSeasonTypesForHotel(inventoryId);
+    }
+
+    public int findHotelIdByInventoryId(int inventoryId){
+        return this.roomDao.findHotelIdByInventoryId(inventoryId);
+    }
+
+
+
     public List<Object[]> getForTable(int size, List<Room> roomList){
         List<Object[]> roomObjList = new ArrayList<>();
         for (Room obj : roomList) {

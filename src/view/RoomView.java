@@ -4,6 +4,7 @@ import business.RoomManager;
 import entity.Room;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoomView extends Layout {
@@ -26,6 +27,9 @@ public class RoomView extends Layout {
     private JCheckBox cbox_rooms_safe;
     private JButton SUBMITButton;
     private JLabel lbl_rooms_title;
+    private String[] currentHotelRoomTypes;
+    private String[] currentHotelPensionTypes;
+    private String[] currentHotelSeasons;
 
     private Room room;
     private RoomManager roomManager;
@@ -36,7 +40,12 @@ public class RoomView extends Layout {
         this.add(container);
         this.guiInitialize(1000, 700);
 
+
+
         if(room != null){
+            this.cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(room.getInventory_id())));
+            this.cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(room.getInventory_id())));
+            this.cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(room.getInventory_id())));
             this.cmb_rooms_hotel_name.getModel().setSelectedItem(this.room.getHotel_name());
             this.cmb_rooms_pension_type.getModel().setSelectedItem(this.room.getPension_type());
             this.cmb_rooms_room_type.getModel().setSelectedItem(this.room.getRoom_type());
@@ -87,5 +96,26 @@ public class RoomView extends Layout {
                 this.fld_rooms_size.setText(roomSize);
             }
         }
+    }
+
+    private List<String> getSelectedRoomFeatures() {
+        List<String> selectedRoomFeatures = new ArrayList<>();
+        if (cbox_rooms_television.isSelected()) {
+            selectedRoomFeatures.add("Television");
+        }
+        if (cbox_rooms_minibar.isSelected()) {
+            selectedRoomFeatures.add("Minibar");
+        }
+        if (cbox_rooms_console.isSelected()) {
+            selectedRoomFeatures.add("Gaming console");
+        }
+        if(cbox_rooms_safe.isSelected()){
+            selectedRoomFeatures.add("Safe");
+        }
+        if(cbox_rooms_projector.isSelected()){
+            selectedRoomFeatures.add("Projector");
+        }
+
+        return selectedRoomFeatures;
     }
 }
