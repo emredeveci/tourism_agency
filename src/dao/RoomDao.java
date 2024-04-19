@@ -11,7 +11,7 @@ public class RoomDao {
 
     private final DatabaseConnection databaseConnection;
 
-    public RoomDao(){
+    public RoomDao() {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
@@ -42,7 +42,7 @@ public class RoomDao {
         return obj;
     }
 
-    public List<Room> findAll(){
+    public List<Room> findAll() {
         List<Room> roomList = new ArrayList<>();
 
         // Prepare SQL query
@@ -97,12 +97,12 @@ public class RoomDao {
         return true;
     }
 
-    public boolean save(int hotelId, String roomType, String pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
+    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures) {
 
         return true;
     }
 
-    public List<Object[]> findAllRoomDetails(int inventoryId){
+    public List<Object[]> findAllRoomDetails(int inventoryId) {
         List<Object[]> roomDetailsData = new ArrayList<>();
 
         String query = "SELECT inventory_id, bed_count, room_size " +
@@ -128,7 +128,7 @@ public class RoomDao {
         return roomDetailsData;
     }
 
-    public List<Object[]> findAllRoomFeatures(int inventoryId){
+    public List<Object[]> findAllRoomFeatures(int inventoryId) {
         List<Object[]> roomFeaturesData = new ArrayList<>();
         String query = "SELECT hrf.inventory_id, rft.feature_type " +
                 "FROM hotel_room_features hrf " +
@@ -152,7 +152,7 @@ public class RoomDao {
         return roomFeaturesData;
     }
 
-    public String[] findRoomTypesForHotel(int selectedHotelId){
+    public String[] findRoomTypesForHotel(int selectedHotelId) {
         List<String> roomTypes = new ArrayList<>();
 
         String query = "SELECT DISTINCT rt.room_type_name " +
@@ -180,7 +180,7 @@ public class RoomDao {
         return roomTypesArray;
     }
 
-    public String[] getPensionTypesForHotel(int selectedHotelId){
+    public String[] getPensionTypesForHotel(int selectedHotelId) {
         List<String> pensionTypes = new ArrayList<>();
 
         String query = "SELECT pt.pension_type " +
@@ -208,7 +208,7 @@ public class RoomDao {
         return pensionTypesArray;
     }
 
-    public String[] getSeasonTypesForHotel(int selectedHotelId){
+    public String[] getSeasonTypesForHotel(int selectedHotelId) {
         List<String> seasonTypes = new ArrayList<>();
 
         String query = "SELECT dp.discount_id " +
@@ -282,6 +282,68 @@ public class RoomDao {
         }
 
         return hotelId;
+    }
+
+    public Map<Integer, String> getRoomTypesForMap(int selectedHotelId) {
+        Map<Integer, String> roomMap = new HashMap<>();
+        String query = "SELECT rt.room_type_id, rt.room_type_name " +
+                "FROM room_inventory ri " +
+                "JOIN room_types rt ON ri.room_type_id = rt.room_type_id " +
+                "WHERE ri.hotel_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, selectedHotelId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int roomId = resultSet.getInt("room_type_id");
+                String roomName = resultSet.getString("room_type_name");
+                roomMap.put(roomId, roomName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return roomMap;
+    }
+
+    public Map<Integer, String> getPensionTypesForMap(int selectedHotelId) {
+        Map<Integer, String> pensionMap = new HashMap<>();
+        String query = "SELECT pt.pension_id, pt.pension_type " +
+                "FROM hotel_pensions hp " +
+                "JOIN pension_types pt ON hp.pension_id = pt.pension_id " +
+                "WHERE hp.hotel_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, selectedHotelId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int pensionId = resultSet.getInt("pension_id");
+                String pensionType = resultSet.getString("pension_type");
+                pensionMap.put(pensionId, pensionType);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pensionMap;
+    }
+
+    public Map<Integer, Integer> getSeasonTypesForMap(int selectedHotelId) {
+        Map<Integer, Integer> seasonMap = new HashMap<>();
+        String query = "SELECT discount_id " +
+                "FROM discount_periods " +
+                "WHERE hotel_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, selectedHotelId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int discountId = resultSet.getInt("discount_id");
+                int discountNumber = resultSet.getInt("discount_id");
+                seasonMap.put(discountId, discountNumber);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return seasonMap;
     }
 
     public Map<Integer, String> getHotelNames() {
