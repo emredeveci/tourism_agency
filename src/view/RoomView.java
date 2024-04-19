@@ -49,6 +49,7 @@ public class RoomView extends Layout {
         this.add(container);
         this.guiInitialize(1000, 700);
         populateHotelComboBox();
+        populateRoomTypeComboBox();
         final int[] selectedHotelId = {-1};
         final int[] selectedRoomId = {-1};
         final int[] selectedPensionId = {-1};
@@ -67,7 +68,6 @@ public class RoomView extends Layout {
                 }
 
                 populateSeasonTypeComboBox(selectedHotelId[0]);
-                populateRoomTypeComboBox(selectedHotelId[0]);
                 populateSeasonTypeComboBox(selectedHotelId[0]);
                 populatePensionTypeComboBox(selectedHotelId[0]);
                 System.out.println("Selected hotel ID: " + selectedHotelId[0]);
@@ -146,7 +146,7 @@ public class RoomView extends Layout {
                 int pensionType = selectedPensionId[0];
                 int seasonId = selectedSeasonId[0];
 
-                String stock = fld_rooms_stock.getText();
+                int stock = Integer.parseInt(fld_rooms_stock.getText());
                 int numberOfBeds = Integer.parseInt(fld_rooms_beds.getText());
                 String roomSize = fld_rooms_size.getText();
                 double adultPrice = Integer.parseInt(fld_rooms_adult_price.getText());
@@ -262,8 +262,8 @@ public class RoomView extends Layout {
         cmb_rooms_hotel_name.setModel(model);
     }
 
-    private void populateRoomTypeComboBox(int selectedHotelId) {
-        roomTypeMap = roomManager.getRoomTypesForMap(selectedHotelId);
+    private void populateRoomTypeComboBox() {
+        roomTypeMap = roomManager.getRoomTypesForMap();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         model.addElement("");
         for (Map.Entry<Integer, String> entry : roomTypeMap.entrySet()) {

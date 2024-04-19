@@ -25,7 +25,7 @@ public class RoomManager {
         return this.roomDao.delete(inventoryId);
     }
 
-    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
+    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, Integer stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
         return this.roomDao.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
     }
 
@@ -65,12 +65,14 @@ public class RoomManager {
         return this.roomDao.getHotelNames();
     }
 
-    public Map<Integer, String> getRoomTypesForMap(int selectedHotelId){
-        return this.roomDao.getRoomTypesForMap(selectedHotelId);
+    public Map<Integer, String> getRoomTypesForMap(){
+        return this.roomDao.getRoomTypesForMap();
     }
+
     public Map<Integer, String> getPensionTypesForMap(int selectedHotelId){
         return this.roomDao.getPensionTypesForMap(selectedHotelId);
     }
+
     public Map<Integer, Integer> getSeasonTypesForMap(int selectedHotelId){
         return this.roomDao.getSeasonTypesForMap(selectedHotelId);
     }

@@ -6,6 +6,7 @@ import entity.Room;
 
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 public class RoomDao {
 
@@ -97,8 +98,68 @@ public class RoomDao {
         return true;
     }
 
-    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures) {
+    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, Integer stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures) {
+        String query = "INSERT INTO public.room_inventory " +
+                "(hotel_id, quantity_available, room_type_id, room_size, bed_count) " +
+                "VALUES (?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            pr.setInt(1, hotelId);
+            pr.setInt(2, stock);
+            pr.setInt(3, roomType);
+            pr.setString(4, roomSize);
+            pr.setInt(5, numberOfBeds);
+            pr.executeUpdate();
 
+            ResultSet generatedKeys = pr.getGeneratedKeys();
+            int inventoryId = -1;
+            if (generatedKeys.next()) {
+                inventoryId = generatedKeys.getInt(1);
+            } else {
+                // Handle failure to get generated keys
+                throw new SQLException("Failed to retrieve generated Inventory ID.");
+            }
+
+            for (String feature : selectedRoomFeatures) {
+                String featureQuery = "INSERT INTO hotel_room_features (inventory_id, feature_type_id) VALUES (?, ?)";
+                PreparedStatement featureStatement = this.databaseConnection.getConnection().prepareStatement(featureQuery);
+                featureStatement.setInt(1, inventoryId);
+                featureStatement.setInt(2, getFeatureByName(feature));
+                featureStatement.executeUpdate();
+            }
+
+            String adultPriceQuery = "INSERT INTO public.price " +
+                    "(hotel_id, room_type_id, pension_id, price_per_night, discount_id, guest_id, inventory_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement adultPriceStatement = this.databaseConnection.getConnection().prepareStatement(adultPriceQuery);
+            adultPriceStatement.setInt(1, hotelId);
+            adultPriceStatement.setInt(2, roomType);
+            adultPriceStatement.setInt(3, pensionType);
+            adultPriceStatement.setDouble(4, adultPrice);
+            adultPriceStatement.setInt(5, seasonId);
+            adultPriceStatement.setInt(6, 1);
+            adultPriceStatement.setInt(7, inventoryId);
+            adultPriceStatement.executeUpdate();
+
+            String childPriceQuery = "INSERT INTO public.price " +
+                    "(hotel_id, room_type_id, pension_id, price_per_night, discount_id, guest_id, inventory_id) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement childPriceStatement = this.databaseConnection.getConnection().prepareStatement(childPriceQuery);
+            childPriceStatement.setInt(1, hotelId);
+            childPriceStatement.setInt(2, roomType);
+            childPriceStatement.setInt(3, pensionType);
+            childPriceStatement.setDouble(4, childPrice);
+            childPriceStatement.setInt(5, seasonId);
+            childPriceStatement.setInt(6, 2);
+            childPriceStatement.setInt(7, inventoryId);
+            childPriceStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false; // Return false if an exception occurs
+        }
         return true;
     }
 
@@ -284,16 +345,12 @@ public class RoomDao {
         return hotelId;
     }
 
-    public Map<Integer, String> getRoomTypesForMap(int selectedHotelId) {
+    public Map<Integer, String> getRoomTypesForMap() {
         Map<Integer, String> roomMap = new HashMap<>();
-        String query = "SELECT rt.room_type_id, rt.room_type_name " +
-                "FROM room_inventory ri " +
-                "JOIN room_types rt ON ri.room_type_id = rt.room_type_id " +
-                "WHERE ri.hotel_id = ?";
+        String query = "SELECT room_type_id, room_type_name FROM room_types";
         try (Connection connection = databaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, selectedHotelId);
-            ResultSet resultSet = statement.executeQuery();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 int roomId = resultSet.getInt("room_type_id");
                 String roomName = resultSet.getString("room_type_name");
@@ -361,6 +418,25 @@ public class RoomDao {
             e.printStackTrace();
         }
         return hotelMap;
+    }
+
+    public int getFeatureByName(String featureName) {
+        int featureId = -1;
+        String query = "SELECT room_feature_id FROM room_feature_types WHERE feature_type = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, featureName);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                featureId = resultSet.getInt("room_feature_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return featureId;
     }
 
     public Room match(ResultSet rs) throws SQLException {

@@ -109,6 +109,7 @@ public class AgentView extends Layout {
             if (Utility.confirm("confirm")) {
                 int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
                 if (this.roomManager.delete(selectInventoryId)) {
+                    loadRoomsTable();
                     DefaultTableModel model = (DefaultTableModel) tbl_rooms.getModel();
                     int selectedRow = tbl_rooms.getSelectedRow(); // Get the selected row index before removing
                     model.removeRow(selectedRow);
