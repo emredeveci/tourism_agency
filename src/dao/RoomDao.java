@@ -97,6 +97,11 @@ public class RoomDao {
         return true;
     }
 
+    public boolean save(int hotelId, String roomType, String pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
+
+        return true;
+    }
+
     public List<Object[]> findAllRoomDetails(int inventoryId){
         List<Object[]> roomDetailsData = new ArrayList<>();
 
@@ -175,9 +180,8 @@ public class RoomDao {
         return roomTypesArray;
     }
 
-    public String[] getPensionTypesForHotel(int inventoryId){
+    public String[] getPensionTypesForHotel(int selectedHotelId){
         List<String> pensionTypes = new ArrayList<>();
-        int hotelId = findHotelIdByInventoryId(inventoryId);
 
         String query = "SELECT pt.pension_type " +
                 "FROM hotel_pensions hp " +
@@ -186,7 +190,7 @@ public class RoomDao {
 
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, hotelId);
+            statement.setInt(1, selectedHotelId);
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -204,9 +208,8 @@ public class RoomDao {
         return pensionTypesArray;
     }
 
-    public String[] getSeasonTypesForHotel(int inventoryId){
+    public String[] getSeasonTypesForHotel(int selectedHotelId){
         List<String> seasonTypes = new ArrayList<>();
-        int hotelId = findHotelIdByInventoryId(inventoryId);
 
         String query = "SELECT dp.discount_id " +
                 "FROM discount_periods dp " +
@@ -214,7 +217,7 @@ public class RoomDao {
 
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, hotelId);
+            statement.setInt(1, selectedHotelId);
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
@@ -232,6 +235,35 @@ public class RoomDao {
         return seasonTypesArray;
 
     }
+
+//    public String[] getSeasonTypesForHotel(int selectedHotelId){
+//        List<String> seasonTypes = new ArrayList<>();
+//        int hotelId = findHotelIdByInventoryId(inventoryId);
+//
+//        String query = "SELECT dp.discount_id " +
+//                "FROM discount_periods dp " +
+//                "WHERE dp.hotel_id = ?";
+//
+//        try (Connection connection = databaseConnection.getConnection();
+//             PreparedStatement statement = connection.prepareStatement(query)) {
+//            statement.setInt(1, hotelId);
+//            ResultSet resultSet = statement.executeQuery();
+//
+//            while (resultSet.next()) {
+//                String roomType = resultSet.getString("discount_id");
+//                seasonTypes.add(roomType);
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String[] seasonTypesArray = new String[seasonTypes.size()];
+//        seasonTypesArray = seasonTypes.toArray(seasonTypesArray);
+//        System.out.println(Arrays.toString(seasonTypesArray));
+//
+//        return seasonTypesArray;
+//
+//    }
 
     public int findHotelIdByInventoryId(int inventoryId) {
         int hotelId = -1;

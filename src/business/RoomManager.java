@@ -25,6 +25,10 @@ public class RoomManager {
         return this.roomDao.delete(inventoryId);
     }
 
+    public boolean save(int hotelId, String roomType, String pensionType, int seasonId, String stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
+        return this.roomDao.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
+    }
+
     public Room getByInventoryId(int inventoryId) {
         return this.roomDao.getByInventoryId(inventoryId);
     }

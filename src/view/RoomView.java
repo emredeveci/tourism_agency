@@ -40,32 +40,60 @@ public class RoomView extends Layout {
     private Room room;
     private RoomManager roomManager;
 
-    public RoomView(){
-        this.room = room;
+    public RoomView() {
+//        this.room = room;
         this.roomManager = new RoomManager();
         this.add(container);
         this.guiInitialize(1000, 700);
-
-
         populateHotelComboBox();
+        final int[] selectedHotelId = {-1};
 
         cmb_rooms_hotel_name.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JComboBox comboBox = (JComboBox) e.getSource();
                 String selectedHotelName = (String) comboBox.getSelectedItem();
-                int selectedHotelId = -1;
+
                 for (Map.Entry<Integer, String> entry : hotelMap.entrySet()) {
                     if (entry.getValue().equals(selectedHotelName)) {
-                        selectedHotelId = entry.getKey();
+                        selectedHotelId[0] = entry.getKey();
                         break;
                     }
                 }
 
-                System.out.println("Selected hotel ID: " + selectedHotelId);
-//                cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(selectedHotelId)));
-//                cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(selectedHotelId)));
-//                cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(selectedHotelId)));
+                System.out.println("Selected hotel ID: " + selectedHotelId[0]);
+                cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(selectedHotelId[0])));
+                cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(selectedHotelId[0])));
+                cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(selectedHotelId[0])));
+            }
+        });
+
+        this.btn_rooms_submit.addActionListener(e -> {
+            if (Utility.isFieldListEmpty(new JTextField[]{this.fld_rooms_child_price, this.fld_rooms_size, this.fld_rooms_beds, this.fld_rooms_stock, this.fld_rooms_adult_price}) || cmb_rooms_hotel_name.getSelectedItem() == null || cmb_rooms_hotel_name.getSelectedItem().toString().isEmpty() || cmb_rooms_room_type.getSelectedItem() == null || cmb_rooms_room_type.getSelectedItem().toString().isEmpty() || cmb_rooms_season.getSelectedItem() == null || cmb_rooms_season.getSelectedItem().toString().isEmpty() || cmb_rooms_pension_type.getSelectedItem() == null || cmb_rooms_pension_type.getSelectedItem().toString().isEmpty()) {
+                Utility.showMessage("fill");
+            } else {
+                boolean result = false;
+
+                int hotelId = selectedHotelId[0];
+                String roomType = this.cmb_rooms_room_type.getSelectedItem().toString();
+                String pensionType = this.cmb_rooms_pension_type.getSelectedItem().toString();
+                int seasonId = Integer.parseInt(this.cmb_rooms_season.getSelectedItem().toString());
+                String stock = fld_rooms_stock.getText();
+                int numberOfBeds = Integer.parseInt(fld_rooms_beds.getText());
+                String roomSize = fld_rooms_size.getText();
+                double adultPrice = Integer.parseInt(fld_rooms_adult_price.getText());
+                double childPrice = Integer.parseInt(fld_rooms_child_price.getText());
+                List<String> selectedRoomFeatures = getSelectedRoomFeatures();
+
+                result = this.roomManager.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
+
+
+                if (result) {
+                    Utility.showMessage("done");
+                    dispose();
+                } else {
+                    Utility.showMessage("error");
+                }
             }
         });
 
@@ -136,10 +164,10 @@ public class RoomView extends Layout {
         if (cbox_rooms_console.isSelected()) {
             selectedRoomFeatures.add("Gaming console");
         }
-        if(cbox_rooms_safe.isSelected()){
+        if (cbox_rooms_safe.isSelected()) {
             selectedRoomFeatures.add("Safe");
         }
-        if(cbox_rooms_projector.isSelected()){
+        if (cbox_rooms_projector.isSelected()) {
             selectedRoomFeatures.add("Projector");
         }
 
@@ -149,6 +177,7 @@ public class RoomView extends Layout {
     private void populateHotelComboBox() {
         hotelMap = roomManager.getHotelNames();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        model.addElement("");
         for (Map.Entry<Integer, String> entry : hotelMap.entrySet()) {
             model.addElement(entry.getValue());
         }
