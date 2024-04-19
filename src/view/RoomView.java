@@ -38,7 +38,7 @@ public class RoomView extends Layout {
     private Map<Integer, String> hotelMap;
     private Map<Integer, String> roomTypeMap;
     private Map<Integer, String> pensionTypeMap;
-    private Map<Integer, Integer> seasonTypeMap;
+    private Map<Integer, String> seasonTypeMap;
 
     private Room room;
     private RoomManager roomManager;
@@ -67,7 +67,6 @@ public class RoomView extends Layout {
                     }
                 }
 
-                populateSeasonTypeComboBox(selectedHotelId[0]);
                 populateSeasonTypeComboBox(selectedHotelId[0]);
                 populatePensionTypeComboBox(selectedHotelId[0]);
                 System.out.println("Selected hotel ID: " + selectedHotelId[0]);
@@ -116,21 +115,15 @@ public class RoomView extends Layout {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JComboBox comboBox = (JComboBox) e.getSource();
-                Object selectedItem = comboBox.getSelectedItem();
-
-                if (selectedItem != null) {
-                    try {
-                        Integer selectedSeasonName = Integer.parseInt((String) selectedItem);
-                        for (Map.Entry<Integer, Integer> entry : seasonTypeMap.entrySet()) {
-                            if (entry.getValue().equals(selectedSeasonName)) {
-                                selectedSeasonId[0] = entry.getKey();
-                                break;
-                            }
+                String selectedSeasonName = (String) comboBox.getSelectedItem();
+                if (selectedSeasonName != null && !selectedSeasonName.isEmpty()) {
+                    for (Map.Entry<Integer, String> entry : seasonTypeMap.entrySet()) {
+                        if (entry.getValue().equals(selectedSeasonName)) {
+                            selectedSeasonId[0] = entry.getKey();
+                            break;
                         }
-                        System.out.println("Selected season ID: " + selectedSeasonId[0]);
-                    } catch (NumberFormatException ex) {
-                        System.out.println("Invalid selection: Not a number");
                     }
+                    System.out.println("Selected season ID: " + selectedSeasonId[0]);
                 }
             }
         });
@@ -286,7 +279,7 @@ public class RoomView extends Layout {
         seasonTypeMap = roomManager.getSeasonTypesForMap(selectedHotelId);
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         model.addElement("");
-        for (Map.Entry<Integer, Integer> entry : seasonTypeMap.entrySet()) {
+        for (Map.Entry<Integer, String> entry : seasonTypeMap.entrySet()) {
             model.addElement(String.valueOf(entry.getValue()));
         }
         cmb_rooms_season.setModel(model);

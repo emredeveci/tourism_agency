@@ -5,6 +5,7 @@ import entity.Hotel;
 import entity.Room;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Date;
 
@@ -383,9 +384,9 @@ public class RoomDao {
         return pensionMap;
     }
 
-    public Map<Integer, Integer> getSeasonTypesForMap(int selectedHotelId) {
-        Map<Integer, Integer> seasonMap = new HashMap<>();
-        String query = "SELECT discount_id " +
+    public Map<Integer, String> getSeasonTypesForMap(int selectedHotelId) {
+        Map<Integer, String> seasonMap = new HashMap<>();
+        String query = "SELECT discount_id, start_date, end_date " +
                 "FROM discount_periods " +
                 "WHERE hotel_id = ?";
         try (Connection connection = databaseConnection.getConnection();
@@ -394,8 +395,9 @@ public class RoomDao {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 int discountId = resultSet.getInt("discount_id");
-                int discountNumber = resultSet.getInt("discount_id");
-                seasonMap.put(discountId, discountNumber);
+                String discountString = "From: " + resultSet.getDate("start_date").toLocalDate().toString() + "  ||  To: " + resultSet.getDate("end_date").toLocalDate().toString();
+//                int discountNumber = resultSet.getInt("discount_id");
+                seasonMap.put(discountId, discountString);
             }
         } catch (SQLException e) {
             e.printStackTrace();

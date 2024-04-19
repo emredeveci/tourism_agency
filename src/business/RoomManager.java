@@ -73,7 +73,7 @@ public class RoomManager {
         return this.roomDao.getPensionTypesForMap(selectedHotelId);
     }
 
-    public Map<Integer, Integer> getSeasonTypesForMap(int selectedHotelId){
+    public Map<Integer, String> getSeasonTypesForMap(int selectedHotelId){
         return this.roomDao.getSeasonTypesForMap(selectedHotelId);
     }
 
