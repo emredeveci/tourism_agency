@@ -95,6 +95,87 @@ public class ReservationDao {
         return guestData;
     }
 
+    public List<Object[]> findAllAmenities(int inventoryId) {
+        List<Object[]> amenityData = new ArrayList<>();
+        String query = "SELECT ri.inventory_id, a.amenity_name\n" +
+                "FROM room_inventory ri\n" +
+                "JOIN hotels h ON ri.hotel_id = h.hotel_id\n" +
+                "JOIN hotel_amenities ha ON h.hotel_id = ha.hotel_id\n" +
+                "JOIN amenities a ON ha.amenity_id = a.amenity_id\n" +
+                "WHERE ri.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int resultInventoryId = resultSet.getInt("inventory_id");
+                String amenityName = resultSet.getString("amenity_name");
+                Object[] rowData = {resultInventoryId, amenityName};
+                amenityData.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return amenityData;
+    }
+
+    public List<Object[]> findAllFeatures(int inventoryId) {
+        List<Object[]> featureData = new ArrayList<>();
+        String query = "SELECT ri.inventory_id, rft.feature_type\n" +
+                "FROM room_inventory ri\n" +
+                "JOIN hotel_room_features hrf ON ri.inventory_id = hrf.inventory_id\n" +
+                "JOIN room_feature_types rft ON hrf.feature_type_id = rft.room_feature_id\n" +
+                "WHERE ri.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int resultInventoryId = resultSet.getInt("inventory_id");
+                String featureName = resultSet.getString("feature_type");
+                Object[] rowData = {resultInventoryId, featureName};
+                featureData.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return featureData;
+    }
+
+    public List<Object[]> findHotelInfoByInventoryId(int inventoryId) {
+        List<Object[]> hotelInfoList = new ArrayList<>();
+        String query = "SELECT h.hotel_name, h.city, h.district, h.star_rating, h.address\n" +
+                "FROM room_inventory ri\n" +
+                "JOIN hotels h ON ri.hotel_id = h.hotel_id\n" +
+                "WHERE ri.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String hotelName = resultSet.getString("hotel_name");
+                String city = resultSet.getString("city");
+                String district = resultSet.getString("district");
+                int stars = resultSet.getInt("star_rating");
+                String address = resultSet.getString("address");
+                Object[] rowData = {hotelName, city, district, stars, address};
+                hotelInfoList.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return hotelInfoList;
+    }
+
     public Reservation match(ResultSet rs) throws SQLException {
         Reservation reservation = new Reservation();
         reservation.setReservationId(rs.getInt("reservation_id"));

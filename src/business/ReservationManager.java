@@ -21,9 +21,20 @@ public class ReservationManager {
     public List<Object[]> findAllReservationDetails(int reservationId) {
         return this.reservationDao.findAllReservationDetails(reservationId);
     }
+    public List<Object[]> findHotelInfoByInventoryId(int inventoryId){
+        return this.reservationDao.findHotelInfoByInventoryId(inventoryId);
+    }
 
     public List<Object[]> findAllGuestDetails(int reservationId) {
         return this.reservationDao.findAllGuestDetails(reservationId);
+    }
+
+    public List<Object[]> findAllAmenities(int InventoryId) {
+        return this.reservationDao.findAllAmenities(InventoryId);
+    }
+
+    public List<Object[]> findAllFeatures(int inventoryId){
+        return this.reservationDao.findAllFeatures(inventoryId);
     }
 
     public List<Object[]> getForTable(int size, List<Reservation> reservationList) {

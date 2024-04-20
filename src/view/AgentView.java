@@ -247,15 +247,20 @@ public class AgentView extends Layout {
             });
         });
 
-//        this.room_menu.add("Reserve Room").addActionListener(e -> {
-//            ReservationView reservationView = new ReservationView();
-//            reservationView.addWindowListener(new WindowAdapter() {
-//                @Override
-//                public void windowClosed(WindowEvent e) {
-//                    loadRoomsTable(null);
-//                }
-//            });
-//        });
+        this.room_menu.add("Reserve Room").addActionListener(e -> {
+            int selectedRow = tbl_rooms.getSelectedRow();
+            int reservationId = 0;
+            if (selectedRow != -1) {
+                reservationId= Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
+            }
+            ReservationView reservationView = new ReservationView(reservationId, "reserve");
+            reservationView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    loadReservationsTable();
+                }
+            });
+        });
 
         this.btn_rooms_add.addActionListener(e -> {
             RoomView roomView = new RoomView();
@@ -292,19 +297,6 @@ public class AgentView extends Layout {
             }
         });
 
-//        this.room_menu.add("Update").addActionListener(e -> {
-//            RoomView roomView = new RoomView(this.roomManager.getByInventoryId(this.getTableSelectedRow(tbl_rooms, 0)));
-//            roomView.addWindowListener(new WindowAdapter() {
-//                @Override
-//                public void windowClosed(WindowEvent e) {
-//                    int selectedInventoryId = getTableSelectedRow(tbl_rooms, 0);
-//                    loadRoomsTable();
-//                    loadRoomDetailsTable(null, selectedInventoryId);
-//                    loadRoomFeaturesTable(null, selectedInventoryId);
-//                }
-//            });
-//        });
-
 
         this.tbl_rooms.setComponentPopupMenu(room_menu);
 
@@ -315,6 +307,7 @@ public class AgentView extends Layout {
                     int selectedRow = tbl_rooms.getSelectedRow();
                     if (selectedRow != -1) {
                         int selectedInventoryId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
+                        System.out.println(selectedInventoryId);
                         loadRoomDetailsTable(null, selectedInventoryId);
                         loadRoomFeaturesTable(null, selectedInventoryId);
                     }
