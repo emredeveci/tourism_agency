@@ -1,8 +1,13 @@
 package view;
 
 import business.ReservationManager;
+import core.Utility;
+import entity.Reservation;
 
 import javax.swing.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,11 +67,43 @@ public class ReservationView extends Layout {
 
         List<Object[]> amenitiesData = reservationManager.findAllAmenities(inventoryId);
         List<Object[]> roomFeatures = reservationManager.findAllFeatures(inventoryId);
-        List<Object[]> hotelInfoList = reservationManager.findHotelInfoByInventoryId(inventoryId);
+        List<Object[]> hotelInfoList = reservationManager.findHotelInfo(inventoryId);
+        List<Object[]> roomInfoList = reservationManager.findRoomInfo(inventoryId);
+        Integer discountId = reservationManager.findDiscountId(inventoryId);
+        Integer roomPensionId = reservationManager.findPensionId(inventoryId);
+        Integer roomTypeId = reservationManager.findRoomTypeId(inventoryId);
 
         preselectAmenityCheckboxes(amenitiesData);
         preselectFeatureCheckboxes(roomFeatures);
         preFillHotelInformation(hotelInfoList);
+        prefillRoomInformation(roomInfoList);
+
+        this.btn_reservation_submit.addActionListener(e -> {
+            boolean result = false;
+            Integer hotelId = (int) hotelInfoList.get(0)[0];
+            String hotelName = (String) hotelInfoList.get(0)[1];
+            Integer childCount = Integer.valueOf(fld_reservations_children.getText().trim());
+            Integer adultCount = Integer.valueOf(fld_reservations_adult.getText().trim());
+            String startDateString = fld_reservations_startdate.getText().trim();
+            String endDateString = fld_reservations_enddate.getText().trim();
+            LocalDate startDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String guestName = fld_reservations_guestname.getText().trim();
+            String guestPhone = fld_reservations_phone.getText().trim();
+            String guestIdNo = fld_reservations_guestId.getText().trim();
+            String guestEmail = fld_reservations_guestId.getText().trim();
+            BigDecimal totalCost = new BigDecimal(fld_reservations_cost.getText().trim());
+
+            result = this.reservationManager.save(inventoryId, hotelId, hotelName, discountId, roomPensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
+
+            if (result) {
+                Utility.showMessage("done");
+                dispose();
+            } else {
+                Utility.showMessage("error");
+            }
+
+        });
     }
 
     private void preselectAmenityCheckboxes(List<Object[]> amenitiesData) {
@@ -125,14 +162,14 @@ public class ReservationView extends Layout {
         }
     }
 
-    private void preFillHotelInformation(List<Object[]> hotelInfoList){
+    private void preFillHotelInformation(List<Object[]> hotelInfoList) {
         if (!hotelInfoList.isEmpty()) {
             Object[] rowData = hotelInfoList.get(0); // Assuming there is only one hotel info in the list
-            String hotelName = (String) rowData[0];
-            String city = (String) rowData[1];
-            String district = (String) rowData[2];
-            int stars = (int) rowData[3];
-            String address = (String) rowData[4];
+            String hotelName = (String) rowData[1];
+            String city = (String) rowData[2];
+            String district = (String) rowData[3];
+            int stars = (int) rowData[4];
+            String address = (String) rowData[5];
 
             // Assuming these are your text fields
             fld_reservation_hotel.setText(hotelName);
@@ -140,6 +177,21 @@ public class ReservationView extends Layout {
             fld_reservation_district.setText(district);
             fld_reservation_stars.setText(String.valueOf(stars));
             fld_reservation_address.setText(address);
+        }
+    }
+
+    private void prefillRoomInformation(List<Object[]> roomInfoList) {
+        if (!roomInfoList.isEmpty()) {
+            Object[] rowData = roomInfoList.get(0); // Assuming there is only one hotel info in the list
+            String roomType = (String) rowData[1];
+            int numberOfBeds = (int) rowData[2];
+            String roomSize = (String) rowData[3];
+            String pensionType = (String) rowData[4];
+
+            fld_reservation_roomtype.setText(roomType);
+            fld_reservation_beds.setText(String.valueOf(numberOfBeds));
+            fld_reservations_pension.setText(pensionType);
+            fld_reservations_size.setText(roomSize);
         }
     }
 }

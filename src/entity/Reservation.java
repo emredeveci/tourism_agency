@@ -27,8 +27,7 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(int reservationId, int inventoryId, int hotelId, String hotelName, String cityName, int discountId, int pensionId, int roomTypeId, Integer childCount, Integer adultCount, String roomTypeName, String pensionTypeName, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdentificationNumber, String guestEmail, BigDecimal totalCost) {
-        this.reservationId = reservationId;
+    public Reservation(int inventoryId, int hotelId, String hotelName, String cityName, int discountId, int pensionId, int roomTypeId, Integer childCount, Integer adultCount, String roomTypeName, String pensionTypeName, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdentificationNumber, String guestEmail, BigDecimal totalCost) {
         this.inventoryId = inventoryId;
         this.hotelId = hotelId;
         this.hotelName = hotelName;

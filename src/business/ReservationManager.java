@@ -1,10 +1,14 @@
 package business;
 
+import core.Utility;
 import dao.ReservationDao;
 import entity.Hotel;
 import entity.Reservation;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ReservationManager {
@@ -21,8 +25,12 @@ public class ReservationManager {
     public List<Object[]> findAllReservationDetails(int reservationId) {
         return this.reservationDao.findAllReservationDetails(reservationId);
     }
-    public List<Object[]> findHotelInfoByInventoryId(int inventoryId){
-        return this.reservationDao.findHotelInfoByInventoryId(inventoryId);
+    public List<Object[]> findHotelInfo(int inventoryId){
+        return this.reservationDao.findHotelInfo(inventoryId);
+    }
+
+    public List<Object[]> findRoomInfo(int inventoryId){
+        return this.reservationDao.findRoomInfo(inventoryId);
     }
 
     public List<Object[]> findAllGuestDetails(int reservationId) {
@@ -35,6 +43,21 @@ public class ReservationManager {
 
     public List<Object[]> findAllFeatures(int inventoryId){
         return this.reservationDao.findAllFeatures(inventoryId);
+    }
+
+    public Integer findPensionId(int inventoryId){
+        return this.reservationDao.findPensionId(inventoryId);
+    }
+
+    public Integer findDiscountId(int inventoryId){
+        return this.reservationDao.findDiscountId(inventoryId);
+    }
+    public Integer findRoomTypeId(int inventoryId){
+        return this.reservationDao.findRoomTypeId(inventoryId);
+    }
+
+    public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost) {
+        return this.reservationDao.save(inventoryId, hotelId, hotelName, discountId, pensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
     }
 
     public List<Object[]> getForTable(int size, List<Reservation> reservationList) {

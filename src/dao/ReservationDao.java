@@ -4,10 +4,9 @@ import core.DatabaseConnection;
 import entity.Hotel;
 import entity.Reservation;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,9 +147,9 @@ public class ReservationDao {
         return featureData;
     }
 
-    public List<Object[]> findHotelInfoByInventoryId(int inventoryId) {
+    public List<Object[]> findHotelInfo(int inventoryId) {
         List<Object[]> hotelInfoList = new ArrayList<>();
-        String query = "SELECT h.hotel_name, h.city, h.district, h.star_rating, h.address\n" +
+        String query = "SELECT h.hotel_id, h.hotel_name, h.city, h.district, h.star_rating, h.address\n" +
                 "FROM room_inventory ri\n" +
                 "JOIN hotels h ON ri.hotel_id = h.hotel_id\n" +
                 "WHERE ri.inventory_id = ?";
@@ -161,12 +160,13 @@ public class ReservationDao {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
+                int hotelId = resultSet.getInt("hotel_id");
                 String hotelName = resultSet.getString("hotel_name");
                 String city = resultSet.getString("city");
                 String district = resultSet.getString("district");
                 int stars = resultSet.getInt("star_rating");
                 String address = resultSet.getString("address");
-                Object[] rowData = {hotelName, city, district, stars, address};
+                Object[] rowData = {hotelId, hotelName, city, district, stars, address};
                 hotelInfoList.add(rowData);
             }
         } catch (SQLException e) {
@@ -175,6 +175,130 @@ public class ReservationDao {
 
         return hotelInfoList;
     }
+
+    public List<Object[]> findRoomInfo(int inventoryId) {
+        List<Object[]> roomInfoList = new ArrayList<>();
+        String query = "SELECT ri.inventory_id, rt.room_type_name, ri.bed_count, ri.room_size, pt.pension_type " +
+                "FROM room_inventory ri " +
+                "JOIN room_types rt ON ri.room_type_id = rt.room_type_id " +
+                "LEFT JOIN (SELECT p.inventory_id, MIN(pt.pension_type) AS pension_type " +
+                "FROM price p " +
+                "JOIN pension_types pt ON p.pension_id = pt.pension_id " +
+                "GROUP BY p.inventory_id) AS pt ON ri.inventory_id = pt.inventory_id " +
+                "WHERE ri.inventory_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int resultInventoryId = resultSet.getInt("inventory_id");
+                    String roomTypeName = resultSet.getString("room_type_name");
+                    int bedCount = resultSet.getInt("bed_count");
+                    String roomSize = resultSet.getString("room_size");
+                    String pensionType = resultSet.getString("pension_type");
+                    Object[] rowData = {resultInventoryId, roomTypeName, bedCount, roomSize, pensionType};
+                    roomInfoList.add(rowData);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return roomInfoList;
+    }
+
+    public Integer findPensionId(int inventoryId) {
+        Integer pensionId = null;
+        String query = "SELECT DISTINCT p.pension_id " +
+                "FROM price p " +
+                "WHERE p.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                pensionId = resultSet.getInt("pension_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pensionId;
+    }
+
+    public Integer findDiscountId(int inventoryId) {
+        Integer discountId = null;
+        String query = "SELECT DISTINCT p.discount_id " +
+                "FROM price p " +
+                "WHERE p.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                discountId = resultSet.getInt("discount_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return discountId;
+    }
+
+    public Integer findRoomTypeId(int inventoryId) {
+        Integer roomTypeId = null;
+        String query = "SELECT DISTINCT p.room_type_id " +
+                "FROM price p " +
+                "WHERE p.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                roomTypeId = resultSet.getInt("room_type_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return roomTypeId;
+    }
+
+    public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost){
+        String query = "INSERT INTO public.reservations " +
+                "(inventory_id, hotel_id, hotel_name, discount_id, pension_id, room_type_id, child_count, adult_count, start_date, end_date, guest_name, guest_phone, guest_identification_number, guest_email, total_cost) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, inventoryId);
+            pr.setInt(2, hotelId);
+            pr.setString(3, hotelName);
+            pr.setInt(4, discountId);
+            pr.setInt(5, pensionId);
+            pr.setInt(6, roomTypeId);
+            pr.setInt(7, childCount);
+            pr.setInt(8, adultCount);
+            pr.setDate(9, Date.valueOf(startDate));
+            pr.setDate(10, Date.valueOf(endDate));
+            pr.setString(11, guestName);
+            pr.setString(12, guestPhone);
+            pr.setString(13, guestIdNo);
+            pr.setString(14, guestEmail);
+            pr.setBigDecimal(15, totalCost);
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+
 
     public Reservation match(ResultSet rs) throws SQLException {
         Reservation reservation = new Reservation();
