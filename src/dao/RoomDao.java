@@ -164,6 +164,90 @@ public class RoomDao {
         return true;
     }
 
+    public List<Room> getForRoomSearch(String hotelName, String cityName, LocalDate startDate, LocalDate endDate, Integer adultCount, Integer childCount) {
+        List<Room> roomList = new ArrayList<>();
+
+        // Prepare SQL query
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price ");
+        queryBuilder.append("FROM room_inventory ri ");
+        queryBuilder.append("JOIN hotels h ON ri.hotel_id = h.hotel_id ");
+        queryBuilder.append("LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id ");
+        queryBuilder.append("LEFT JOIN pension_types pt ON hp.pension_id = pt.pension_id ");
+        queryBuilder.append("LEFT JOIN price p ON ri.inventory_id = p.inventory_id AND p.guest_id = 1 ");
+        queryBuilder.append("LEFT JOIN price p2 ON ri.inventory_id = p2.inventory_id AND p2.guest_id = 2 ");
+        queryBuilder.append("LEFT JOIN discount_periods dp ON p.discount_id = dp.discount_id ");
+        queryBuilder.append("JOIN room_types rt ON ri.room_type_id = rt.room_type_id ");
+        queryBuilder.append("AND (p.pension_id IS NULL OR pt.pension_id = p.pension_id) ");
+        queryBuilder.append("AND (p2.pension_id IS NULL OR pt.pension_id = p2.pension_id) ");
+
+        // Add WHERE clause for filtering based on search criteria
+        queryBuilder.append("WHERE 1=1 "); // Dummy condition to start WHERE clause
+
+
+        if (hotelName != null && !hotelName.isEmpty()) {
+            queryBuilder.append("AND h.hotel_name LIKE ? ");
+        }
+
+        if (cityName != null && !cityName.isEmpty()) {
+            queryBuilder.append("AND h.city LIKE ? ");
+        }
+
+        // Add date filtering conditions only if both start date and end date are provided
+        if (startDate != null && endDate != null) {
+            queryBuilder.append("AND NOT EXISTS ("); // Subquery to exclude rooms with reservations between start and end dates
+            queryBuilder.append("SELECT 1 FROM reservations r ");
+            queryBuilder.append("WHERE r.inventory_id = ri.inventory_id ");
+            queryBuilder.append("AND (r.start_date <= ? AND r.end_date >= ?) ");
+            queryBuilder.append(") ");
+        }
+
+        // Add parameters to PreparedStatement
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+            int parameterIndex = 1;
+
+            // Set parameters for hotel name and city name
+            if (hotelName != null && !hotelName.isEmpty()) {
+                statement.setString(parameterIndex++, "%" + hotelName + "%");
+            }
+
+            if (cityName != null && !cityName.isEmpty()) {
+                statement.setString(parameterIndex++, "%" + cityName + "%");
+            }
+
+            // Set parameters for start date and end date
+            if (startDate != null && endDate != null) {
+                statement.setDate(parameterIndex++, java.sql.Date.valueOf(startDate));
+                statement.setDate(parameterIndex++, java.sql.Date.valueOf(endDate));
+            }
+
+            // Execute the query and process the result set
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    // Construct Room object with retrieved information
+                    Room room = new Room();
+                    room.setInventory_id(resultSet.getInt("inventory_id"));
+                    room.setHotel_name(resultSet.getString("hotel_name"));
+                    room.setPension_type(resultSet.getString("pension_type"));
+                    room.setDiscount_id(resultSet.getInt("discount_id"));
+                    room.setRoom_type(resultSet.getString("room_type_name"));
+                    room.setQuantity_available(resultSet.getInt("quantity_available"));
+                    room.setAdult_price(resultSet.getDouble("adult_price"));
+                    room.setChild_price(resultSet.getDouble("child_price"));
+
+                    // Add Room object to roomList
+                    roomList.add(room);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle any potential database errors
+        }
+
+        return roomList;
+    }
+
     public List<Object[]> findAllRoomDetails(int inventoryId) {
         List<Object[]> roomDetailsData = new ArrayList<>();
 
@@ -420,6 +504,36 @@ public class RoomDao {
             e.printStackTrace();
         }
         return hotelMap;
+    }
+
+    public Map<Integer, String> getCityNames(Integer selectedHotelId) {
+        Map<Integer, String> cityMap = new HashMap<>();
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT hotel_id, city FROM hotels ");
+
+        // Append WHERE clause conditionally based on hotelId
+        if (selectedHotelId != null) {
+            queryBuilder.append("WHERE hotel_id = ?");
+        }
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+            // Set hotelId parameter if not null
+            if (selectedHotelId != null) {
+                statement.setInt(1, selectedHotelId);
+            }
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int newHotelId = resultSet.getInt("hotel_id");
+                    String cityName = resultSet.getString("city");
+                    cityMap.put(newHotelId, cityName);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cityMap;
     }
 
     public int getFeatureByName(String featureName) {

@@ -5,6 +5,7 @@ import dao.RoomDao;
 import entity.Hotel;
 import entity.Room;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,12 @@ public class RoomManager {
         return this.roomDao.getSeasonTypesForMap(selectedHotelId);
     }
 
+    public Map<Integer, String> getCityNames(Integer selectedHotelId){
+        return this.roomDao.getCityNames(selectedHotelId);
+    }
+    public List<Room> getForRoomSearch(String hotelName, String cityName, LocalDate startDate, LocalDate endDate, Integer adultCount, Integer childCount){
+        return this.roomDao.getForRoomSearch(hotelName, cityName, startDate, endDate, adultCount, childCount);
+    }
     public List<Object[]> getForTable(int size, List<Room> roomList){
         List<Object[]> roomObjList = new ArrayList<>();
         for (Room obj : roomList) {

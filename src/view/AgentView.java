@@ -1,6 +1,7 @@
 package view;
 
 import business.HotelManager;
+import business.ReservationManager;
 import business.RoomManager;
 import core.Utility;
 import entity.Hotel;
@@ -15,7 +16,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class AgentView extends Layout {
     private JPanel container;
@@ -40,19 +44,38 @@ public class AgentView extends Layout {
     private JScrollPane scrl_room_features;
     private JLabel lbl_room_details;
     private JLabel lbl_room_features;
+    private JButton btn_rooms_search;
+    private JButton btn_rooms_clear;
+    private JButton btn_rooms_add;
+    private JComboBox cmb_rooms_hotel;
+    private JComboBox cmb_rooms_city;
+    private JTextField fld_rooms_start_date;
+    private JTextField fld_rooms_end_date;
+    private JTextField fld_rooms_adults;
+    private JTextField fld_rooms_children;
+    private JTable tbl_reservations;
+    private JScrollPane scrl_reservations;
+    private JScrollPane scrl_reservation_details;
+    private JTable tbl_reservation_details;
+    private JTable tbl_guest_details;
+    private JScrollPane scrl_guest_details;
 
     private User user;
     private Hotel hotel;
     private Room room;
     private HotelManager hotelManager;
     private RoomManager roomManager;
+    private ReservationManager reservationManager;
     private DefaultTableModel tmdl_hotels = new DefaultTableModel();
     private DefaultTableModel tmdl_rooms = new DefaultTableModel();
+    private DefaultTableModel tmdl_reservations = new DefaultTableModel();
     private DefaultTableModel tmdl_pensions = new DefaultTableModel(new Object[]{"ID", "Pension Type"}, 0);
     private DefaultTableModel tmdl_amenities = new DefaultTableModel(new Object[]{"ID", "Amenity"}, 0);
     private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
     private DefaultTableModel tmdl_room_details = new DefaultTableModel(new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"}, 0);
     private DefaultTableModel tmdl_room_features = new DefaultTableModel(new Object[]{"Inventory ID", "Room Features"}, 0);
+    private DefaultTableModel tmdl_reservation_details = new DefaultTableModel(new Object[]{"Pension Type", "Room Type", "Adult", "Children"}, 0);
+    private DefaultTableModel tmdl_contact_details = new DefaultTableModel(new Object[]{"Name", "ID", "Phone", "Email"}, 0);
     private JPopupMenu hotel_menu;
     private JPopupMenu room_menu;
     private Object[] col_hotel;
@@ -62,7 +85,11 @@ public class AgentView extends Layout {
     private Object[] col_rooms;
     private Object[] col_room_details;
     private Object[] col_room_features;
-
+    private Object[] col_reservations;
+    private Object[] col_reservation_details;
+    private Object[] col_reservation_contact;
+    private Map<Integer, String> hotelMap;
+    private Map<Integer, String> cityMap;
 
 
     public AgentView(User user) {
@@ -71,6 +98,7 @@ public class AgentView extends Layout {
         this.user = user;
         this.hotelManager = new HotelManager();
         this.roomManager = new RoomManager();
+        this.reservationManager = new ReservationManager();
 
         if (this.user == null) {
             dispose();
@@ -84,6 +112,8 @@ public class AgentView extends Layout {
         tbl_discount_periods.setModel(tmdl_discount_periods);
         tbl_room_details.setModel(tmdl_room_details);
         tbl_room_features.setModel(tmdl_room_features);
+        tbl_reservation_details.setModel(tmdl_reservation_details);
+        tbl_guest_details.setModel(tmdl_contact_details);
 
         loadComponent();
 
@@ -91,25 +121,150 @@ public class AgentView extends Layout {
         loadHotelTable(null);
 
         //Tab: Rooms
-        loadRoomsTable();
+        loadRoomsTable(null);
+        populateHotelComboBoxForRoomSearch();
+        populateCityComboBoxForRoomSearch(null);
+        final Integer[] selectedHotelId = {-1};
+        final Integer[] selectedCityId = {-1};
 
+        //Tab: Reservations
+        loadReservationsTable();
+
+        cmb_rooms_hotel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox comboBox = (JComboBox) e.getSource();
+                String selectedHotelName = (String) comboBox.getSelectedItem();
+                if (selectedHotelName != null && !selectedHotelName.isEmpty()) {
+                    for (Map.Entry<Integer, String> entry : hotelMap.entrySet()) {
+                        if (entry.getValue().equals(selectedHotelName)) {
+                            selectedHotelId[0] = entry.getKey();
+                            break;
+                        }
+                    }
+                } else {
+                    // Empty row selected, set selectedHotelId to null
+                    selectedHotelId[0] = null;
+                }
+
+                populateCityComboBoxForRoomSearch(selectedHotelId[0]);
+                System.out.println("Selected hotel ID: " + selectedHotelId[0]);
+            }
+        });
+
+        cmb_rooms_city.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox comboBox = (JComboBox) e.getSource();
+                String selectedCityName = (String) comboBox.getSelectedItem();
+                System.out.println(selectedCityName);
+            }
+        });
+
+        this.btn_rooms_search.addActionListener(e -> {
+            if (cmb_rooms_city.getSelectedItem() == null || cmb_rooms_hotel.getSelectedItem() == null || (fld_rooms_start_date.getText().trim().isEmpty() && fld_rooms_end_date.getText().trim().isEmpty())) {
+                Utility.showMessage("fill");
+            } else {
+
+                String hotelName = null;
+                String cityName = null;
+                String startDateString = fld_rooms_start_date.getText().trim();
+                String endDateString = fld_rooms_end_date.getText().trim();
+                LocalDate startDate = null;
+                LocalDate endDate = null;
+                Integer adultCount = null;
+                Integer childCount = null;
+                if(!(((String) cmb_rooms_hotel.getSelectedItem()).isEmpty())){
+                    hotelName = (String) cmb_rooms_hotel.getSelectedItem();
+                }
+                if(!(((String) cmb_rooms_city.getSelectedItem()).isEmpty())){
+                    cityName = (String) cmb_rooms_city.getSelectedItem();
+                }
+                if (!startDateString.isEmpty()) {
+                    startDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                }
+                if (!endDateString.isEmpty()) {
+                    endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                }
+                if(!fld_rooms_adults.getText().isEmpty()){
+                    adultCount = Integer.parseInt(fld_rooms_adults.getText());
+                }
+                if(!fld_rooms_children.getText().isEmpty()){
+                    childCount = Integer.parseInt(fld_rooms_children.getText());
+                }
+                System.out.println(hotelName);
+                System.out.println(cityName);
+                System.out.println(startDate);
+                System.out.println(endDate);
+                System.out.println(adultCount);
+                System.out.println(childCount);
+
+                List<Room> searchResult = this.roomManager.getForRoomSearch(hotelName, cityName, startDate, endDate, adultCount, childCount);
+
+                if (!searchResult.isEmpty()) {
+                    loadRoomsTable(searchResult);
+                } else {
+                    Utility.showMessage("error");
+                }
+            }
+        });
+
+        this.btn_rooms_clear.addActionListener(e->{
+            loadRoomsTable(null);
+            cmb_rooms_hotel.setSelectedItem(null);
+            cmb_rooms_city.setSelectedItem(null);
+            fld_rooms_start_date.setText(null);
+            fld_rooms_end_date.setText(null);
+            fld_rooms_adults.setText(null);
+            fld_rooms_children.setText(null);
+        });
 
     }
 
-    private void loadRoomsTable(){
+    private void loadRoomsTable(List<Room> roomList) {
         tableRowSelect(this.tbl_rooms);
+        List<Object[]> rooms;
 
         col_rooms = new Object[]{"Inventory ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
-        List<Object[]> roomList = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
+        if(roomList == null){
+            rooms = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
+        } else {
+            rooms = this.roomManager.getForTable(col_rooms.length, roomList);
+        }
 
-        createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, roomList);
+        createTable(this.tmdl_rooms, this.tbl_rooms, col_rooms, rooms);
 
         this.room_menu = new JPopupMenu();
+
+        this.room_menu.add("Add").addActionListener(e -> {
+            RoomView roomView = new RoomView();
+            roomView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    loadRoomsTable(null);
+                }
+            });
+        });
+
+        this.btn_rooms_add.addActionListener(e -> {
+            RoomView roomView = new RoomView();
+            roomView.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    loadRoomsTable(null);
+                }
+            });
+        });
+
+        this.btn_rooms_search.addActionListener(e -> {
+
+        });
+
         this.room_menu.add("Remove").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
                 int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
                 if (this.roomManager.delete(selectInventoryId)) {
-                    loadRoomsTable();
+                    loadRoomsTable(null);
                     DefaultTableModel model = (DefaultTableModel) tbl_rooms.getModel();
                     int selectedRow = tbl_rooms.getSelectedRow(); // Get the selected row index before removing
                     model.removeRow(selectedRow);
@@ -143,15 +298,6 @@ public class AgentView extends Layout {
 //            });
 //        });
 
-        this.room_menu.add("Add").addActionListener(e -> {
-            RoomView roomView = new RoomView();
-            roomView.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    loadRoomsTable();
-                }
-            });
-        });
 
         this.tbl_rooms.setComponentPopupMenu(room_menu);
 
@@ -266,6 +412,47 @@ public class AgentView extends Layout {
         });
     }
 
+    private void loadReservationsTable() {
+        tableRowSelect(this.tbl_reservations);
+
+        col_reservations = new Object[]{"Reservation ID", "Hotel", "City", "Start Date", "End Date", "Total Cost"};
+
+        List<Object[]> reservationList = this.reservationManager.getForTable(col_reservations.length, this.reservationManager.findAll());
+
+        this.createTable(this.tmdl_reservations, this.tbl_reservations, col_reservations, reservationList);
+
+
+        tbl_reservations.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = tbl_reservations.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int selectedReservationId = Integer.parseInt(tbl_reservations.getValueAt(selectedRow, 0).toString());
+                        loadReservationDetailsTable(null, selectedReservationId);
+                        loadGuestDetailsTable(null, selectedReservationId);
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadReservationDetailsTable(List<Object[]> reservationsDetails, int selectedRow){
+        col_reservation_details = new Object[]{"Pension Type", "Room Type", "Adult", "Children"};
+        if(reservationsDetails == null){
+            List<Object[]> details = this.reservationManager.findAllReservationDetails(selectedRow);
+            createTable(this.tmdl_reservation_details, this.tbl_reservation_details, col_reservation_details, details);
+        }
+    }
+
+    private void loadGuestDetailsTable(List<Object[]> guestDetails, int selectedRow){
+        col_reservation_contact = new Object[]{"Name", "ID Number", "Phone", "Email"};
+        if(guestDetails == null){
+            List<Object[]> details = this.reservationManager.findAllGuestDetails(selectedRow);
+            createTable(this.tmdl_contact_details, this.tbl_guest_details, col_reservation_contact, details);
+        }
+    }
+
     private void loadPensionTable(List<Object[]> pensionList, int selectedRow) {
         col_pension = new Object[]{"ID", "Pension Type"};
         if (pensionList == null) {
@@ -290,20 +477,40 @@ public class AgentView extends Layout {
         }
     }
 
-    private void loadRoomDetailsTable(List<Object> roomDetailsList, int selectedInventoryId){
+    private void loadRoomDetailsTable(List<Object> roomDetailsList, int selectedInventoryId) {
         col_room_details = new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"};
-        if(roomDetailsList == null){
+        if (roomDetailsList == null) {
             List<Object[]> roomDetails = this.roomManager.findAllRoomDetails(selectedInventoryId);
             createTable(this.tmdl_room_details, this.tbl_room_details, col_room_details, roomDetails);
         }
     }
 
-    private void loadRoomFeaturesTable(List<Object> roomFeaturesList, int selectedInventoryId){
+    private void loadRoomFeaturesTable(List<Object> roomFeaturesList, int selectedInventoryId) {
         col_room_features = new Object[]{"Inventory ID", "Room Features"};
-        if(roomFeaturesList == null){
+        if (roomFeaturesList == null) {
             List<Object[]> roomFeatures = this.roomManager.findAllRoomFeatures(selectedInventoryId);
             createTable(this.tmdl_room_features, this.tbl_room_features, col_room_features, roomFeatures);
         }
+    }
+
+    private void populateHotelComboBoxForRoomSearch() {
+        hotelMap = roomManager.getHotelNames();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        model.addElement("");
+        for (Map.Entry<Integer, String> entry : hotelMap.entrySet()) {
+            model.addElement(entry.getValue());
+        }
+        cmb_rooms_hotel.setModel(model);
+    }
+
+    private void populateCityComboBoxForRoomSearch(Integer selectedHotelId) {
+        cityMap = roomManager.getCityNames(selectedHotelId);
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        model.addElement("");
+        for (Map.Entry<Integer, String> entry : cityMap.entrySet()) {
+            model.addElement(entry.getValue());
+        }
+        cmb_rooms_city.setModel(model);
     }
 
 }
