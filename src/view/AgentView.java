@@ -5,6 +5,7 @@ import business.ReservationManager;
 import business.RoomManager;
 import core.Utility;
 import entity.Hotel;
+import entity.Reservation;
 import entity.Room;
 import entity.User;
 
@@ -236,7 +237,7 @@ public class AgentView extends Layout {
 
         this.room_menu = new JPopupMenu();
 
-        this.room_menu.add("Add").addActionListener(e -> {
+        this.room_menu.add("Add Room").addActionListener(e -> {
             RoomView roomView = new RoomView();
             roomView.addWindowListener(new WindowAdapter() {
                 @Override
@@ -245,6 +246,16 @@ public class AgentView extends Layout {
                 }
             });
         });
+
+//        this.room_menu.add("Reserve Room").addActionListener(e -> {
+//            ReservationView reservationView = new ReservationView();
+//            reservationView.addWindowListener(new WindowAdapter() {
+//                @Override
+//                public void windowClosed(WindowEvent e) {
+//                    loadRoomsTable(null);
+//                }
+//            });
+//        });
 
         this.btn_rooms_add.addActionListener(e -> {
             RoomView roomView = new RoomView();
@@ -256,11 +267,7 @@ public class AgentView extends Layout {
             });
         });
 
-        this.btn_rooms_search.addActionListener(e -> {
-
-        });
-
-        this.room_menu.add("Remove").addActionListener(e -> {
+        this.room_menu.add("Delete Room").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
                 int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
                 if (this.roomManager.delete(selectInventoryId)) {
