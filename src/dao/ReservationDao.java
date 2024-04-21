@@ -37,6 +37,38 @@ public class ReservationDao {
         return reservationList;
     }
 
+    public Integer findInventoryId(int reservationId) {
+        Integer inventoryId = null;
+
+        String query = "SELECT inventory_id FROM Reservations WHERE reservation_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, reservationId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                inventoryId = resultSet.getInt("inventory_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return inventoryId;
+    }
+
+    public boolean deleteReservation(int reservationId) {
+        String query = "DELETE FROM Reservations WHERE reservation_id = ?";
+        try {
+            PreparedStatement pr = databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, reservationId);
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public List<Object[]> findAllReservationDetails(int reservationId) {
         List<Object[]> detailsData = new ArrayList<>();
         String query = "SELECT r.reservation_id, r.inventory_id, r.hotel_id, h.hotel_name, h.city, r.discount_id, r.pension_id, pt.pension_type, r.room_type_id, rt.room_type_name, r.child_count, r.adult_count, r.start_date, r.end_date, r.guest_name, r.guest_phone, r.guest_identification_number, r.guest_email, r.total_cost " +
@@ -268,6 +300,34 @@ public class ReservationDao {
 
         return roomTypeId;
     }
+
+    public Boolean adjustInventoryAfterAdd(int inventoryId) {
+        String sql = "UPDATE room_inventory SET quantity_available = quantity_available - 1 WHERE inventory_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, inventoryId);
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public boolean adjustInventoryAfterRemove(int inventoryId) {
+        String sql = "UPDATE room_inventory SET quantity_available = quantity_available + 1 WHERE inventory_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, inventoryId);
+            statement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public BigDecimal findPricePerNight(int inventoryId, int guestId) {
         BigDecimal pricePerNight = null;

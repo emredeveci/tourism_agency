@@ -44,7 +44,6 @@ public class RoomView extends Layout {
     private RoomManager roomManager;
 
     public RoomView() {
-//        this.room = room;
         this.roomManager = new RoomManager();
         this.add(container);
         this.guiInitialize(1000, 700);
@@ -69,11 +68,6 @@ public class RoomView extends Layout {
 
                 populateSeasonTypeComboBox(selectedHotelId[0]);
                 populatePensionTypeComboBox(selectedHotelId[0]);
-                System.out.println("Selected hotel ID: " + selectedHotelId[0]);
-
-//                cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(selectedHotelId[0])));
-//                cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(selectedHotelId[0])));
-//                cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(selectedHotelId[0])));
             }
         });
 
@@ -89,7 +83,6 @@ public class RoomView extends Layout {
                             break;
                         }
                     }
-                    System.out.println("Selected room ID: " + selectedRoomId[0]);
                 }
             }
         });
@@ -106,7 +99,6 @@ public class RoomView extends Layout {
                             break;
                         }
                     }
-                    System.out.println("Selected pension ID: " + selectedPensionId[0]);
                 }
             }
         });
@@ -123,7 +115,6 @@ public class RoomView extends Layout {
                             break;
                         }
                     }
-                    System.out.println("Selected season ID: " + selectedSeasonId[0]);
                 }
             }
         });
@@ -148,17 +139,6 @@ public class RoomView extends Layout {
 
                 result = this.roomManager.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
 
-                System.out.println(hotelId);
-                System.out.println(roomType);
-                System.out.println(pensionType);
-                System.out.println(seasonId);
-                System.out.println(stock);
-                System.out.println(numberOfBeds);
-                System.out.println(roomSize);
-                System.out.println(adultPrice);
-                System.out.println(childPrice);
-                System.out.println(selectedRoomFeatures.toArray().toString());
-
                 if (result) {
                     Utility.showMessage("done");
                     dispose();
@@ -167,62 +147,7 @@ public class RoomView extends Layout {
                 }
             }
         });
-
-//        if(room != null){
-//            this.cmb_rooms_room_type.setModel(new DefaultComboBoxModel<>(roomManager.getRoomTypesForHotel(room.getInventory_id())));
-//            this.cmb_rooms_pension_type.setModel(new DefaultComboBoxModel<>(roomManager.getPensionTypesForHotel(room.getInventory_id())));
-//            this.cmb_rooms_season.setModel(new DefaultComboBoxModel<>(roomManager.getSeasonTypesForHotel(room.getInventory_id())));
-//            this.cmb_rooms_hotel_name.getModel().setSelectedItem(this.room.getHotel_name());
-//            this.cmb_rooms_pension_type.getModel().setSelectedItem(this.room.getPension_type());
-//            this.cmb_rooms_room_type.getModel().setSelectedItem(this.room.getRoom_type());
-//            this.cmb_rooms_season.getModel().setSelectedItem(this.room.getDiscount_id());
-//            this.fld_rooms_stock.setText(String.valueOf(room.getQuantity_available()));
-//            this.fld_rooms_adult_price.setText(String.valueOf(room.getAdult_price()));
-//            this.fld_rooms_child_price.setText(String.valueOf(room.getChild_price()));
-//
-//            List<Object[]> roomDetailsData = roomManager.findAllRoomDetails(room.getInventory_id());
-//            List<Object[]> roomFeaturesData = roomManager.findAllRoomFeatures(room.getInventory_id());
-//
-//            preselectRoomFeaturesCheckboxes(roomFeaturesData);
-//            prefillRoomDetailsTextFields(roomDetailsData);
-//        }
     }
-
-//    private void preselectRoomFeaturesCheckboxes(List<Object[]> roomFeaturesData) {
-//        if (roomFeaturesData != null) {
-//            for (Object[] rowData : roomFeaturesData) {
-//                String featureName = (String) rowData[1];
-//                switch (featureName) {
-//                    case "Television":
-//                        cbox_rooms_television.setSelected(true);
-//                        break;
-//                    case "Minibar":
-//                        cbox_rooms_minibar.setSelected(true);
-//                        break;
-//                    case "Gaming console":
-//                        cbox_rooms_console.setSelected(true);
-//                        break;
-//                    case "Safe":
-//                        cbox_rooms_safe.setSelected(true);
-//                        break;
-//                    case "Projector":
-//                        cbox_rooms_projector.setSelected(true);
-//                        break;
-//                }
-//            }
-//        }
-//    }
-//
-//    private void prefillRoomDetailsTextFields(List<Object[]> roomDetailsData) {
-//        if (roomDetailsData != null) {
-//            for (Object[] rowData : roomDetailsData) {
-//                String numberOfBeds = rowData[1].toString();
-//                String roomSize = (String) rowData[2];
-//                this.fld_rooms_beds.setText(numberOfBeds);
-//                this.fld_rooms_size.setText(roomSize);
-//            }
-//        }
-//    }
 
     private List<String> getSelectedRoomFeatures() {
         List<String> selectedRoomFeatures = new ArrayList<>();

@@ -392,7 +392,9 @@
                     <children>
                       <component id="94df4" class="javax.swing.JTable" binding="tbl_reservation_details">
                         <constraints/>
-                        <properties/>
+                        <properties>
+                          <autoResizeMode value="2"/>
+                        </properties>
                       </component>
                     </children>
                   </scrollpane>
@@ -413,7 +415,9 @@
                         <children>
                           <component id="4c4b0" class="javax.swing.JTable" binding="tbl_guest_details">
                             <constraints/>
-                            <properties/>
+                            <properties>
+                              <autoResizeMode value="2"/>
+                            </properties>
                           </component>
                         </children>
                       </scrollpane>

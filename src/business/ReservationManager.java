@@ -22,6 +22,10 @@ public class ReservationManager {
         return this.reservationDao.findAll();
     }
 
+    public Integer findInventoryId(int reservationId) {
+        return this.reservationDao.findInventoryId(reservationId);
+    }
+
     public List<Object[]> findAllReservationDetails(int reservationId) {
         return this.reservationDao.findAllReservationDetails(reservationId);
     }
@@ -61,7 +65,20 @@ public class ReservationManager {
     public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost) {
         return this.reservationDao.save(inventoryId, hotelId, hotelName, discountId, pensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
     }
-    public BigDecimal findPricePerNight(int inventoryId, int guestId){
+
+    public boolean deleteReservation(int reservationId) {
+        return this.reservationDao.deleteReservation(reservationId);
+    }
+
+    public boolean adjustInventoryAfterAdd(Integer inventoryId) {
+        return this.reservationDao.adjustInventoryAfterAdd(inventoryId);
+    }
+
+    public boolean adjustInventoryAfterRemove(Integer inventoryId) {
+        return this.reservationDao.adjustInventoryAfterRemove(inventoryId);
+    }
+
+    public BigDecimal findPricePerNight(int inventoryId, int guestId) {
         return this.reservationDao.findPricePerNight(inventoryId, guestId);
     }
 

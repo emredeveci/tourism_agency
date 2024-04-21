@@ -322,7 +322,6 @@ public class RoomDao {
 
         String[] roomTypesArray = new String[roomTypes.size()];
         roomTypesArray = roomTypes.toArray(roomTypesArray);
-        System.out.println(Arrays.toString(roomTypesArray));
 
         return roomTypesArray;
     }
@@ -350,7 +349,6 @@ public class RoomDao {
 
         String[] pensionTypesArray = new String[pensionTypes.size()];
         pensionTypesArray = pensionTypes.toArray(pensionTypesArray);
-        System.out.println(Arrays.toString(pensionTypesArray));
 
         return pensionTypesArray;
     }
@@ -377,40 +375,11 @@ public class RoomDao {
 
         String[] seasonTypesArray = new String[seasonTypes.size()];
         seasonTypesArray = seasonTypes.toArray(seasonTypesArray);
-        System.out.println(Arrays.toString(seasonTypesArray));
 
         return seasonTypesArray;
 
     }
 
-//    public String[] getSeasonTypesForHotel(int selectedHotelId){
-//        List<String> seasonTypes = new ArrayList<>();
-//        int hotelId = findHotelIdByInventoryId(inventoryId);
-//
-//        String query = "SELECT dp.discount_id " +
-//                "FROM discount_periods dp " +
-//                "WHERE dp.hotel_id = ?";
-//
-//        try (Connection connection = databaseConnection.getConnection();
-//             PreparedStatement statement = connection.prepareStatement(query)) {
-//            statement.setInt(1, hotelId);
-//            ResultSet resultSet = statement.executeQuery();
-//
-//            while (resultSet.next()) {
-//                String roomType = resultSet.getString("discount_id");
-//                seasonTypes.add(roomType);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//
-//        String[] seasonTypesArray = new String[seasonTypes.size()];
-//        seasonTypesArray = seasonTypes.toArray(seasonTypesArray);
-//        System.out.println(Arrays.toString(seasonTypesArray));
-//
-//        return seasonTypesArray;
-//
-//    }
 
     public int findHotelIdByInventoryId(int inventoryId) {
         int hotelId = -1;
@@ -481,7 +450,6 @@ public class RoomDao {
             while (resultSet.next()) {
                 int discountId = resultSet.getInt("discount_id");
                 String discountString = "From: " + resultSet.getDate("start_date").toLocalDate().toString() + "  ||  To: " + resultSet.getDate("end_date").toLocalDate().toString();
-//                int discountNumber = resultSet.getInt("discount_id");
                 seasonMap.put(discountId, discountString);
             }
         } catch (SQLException e) {
