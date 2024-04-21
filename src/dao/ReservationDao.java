@@ -269,7 +269,28 @@ public class ReservationDao {
         return roomTypeId;
     }
 
-    public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost){
+    public BigDecimal findPricePerNight(int inventoryId, int guestId) {
+        BigDecimal pricePerNight = null;
+        String query = "SELECT price_per_night FROM price WHERE inventory_id = ? AND guest_id = ? LIMIT 1";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            statement.setInt(2, guestId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    pricePerNight = resultSet.getBigDecimal("price_per_night");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pricePerNight;
+    }
+
+    public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost) {
         String query = "INSERT INTO public.reservations " +
                 "(inventory_id, hotel_id, hotel_name, discount_id, pension_id, room_type_id, child_count, adult_count, start_date, end_date, guest_name, guest_phone, guest_identification_number, guest_email, total_cost) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -297,7 +318,6 @@ public class ReservationDao {
         }
         return true;
     }
-
 
 
     public Reservation match(ResultSet rs) throws SQLException {

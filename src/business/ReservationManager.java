@@ -18,18 +18,19 @@ public class ReservationManager {
         this.reservationDao = new ReservationDao();
     }
 
-    public List<Reservation> findAll(){
+    public List<Reservation> findAll() {
         return this.reservationDao.findAll();
     }
 
     public List<Object[]> findAllReservationDetails(int reservationId) {
         return this.reservationDao.findAllReservationDetails(reservationId);
     }
-    public List<Object[]> findHotelInfo(int inventoryId){
+
+    public List<Object[]> findHotelInfo(int inventoryId) {
         return this.reservationDao.findHotelInfo(inventoryId);
     }
 
-    public List<Object[]> findRoomInfo(int inventoryId){
+    public List<Object[]> findRoomInfo(int inventoryId) {
         return this.reservationDao.findRoomInfo(inventoryId);
     }
 
@@ -41,23 +42,27 @@ public class ReservationManager {
         return this.reservationDao.findAllAmenities(InventoryId);
     }
 
-    public List<Object[]> findAllFeatures(int inventoryId){
+    public List<Object[]> findAllFeatures(int inventoryId) {
         return this.reservationDao.findAllFeatures(inventoryId);
     }
 
-    public Integer findPensionId(int inventoryId){
+    public Integer findPensionId(int inventoryId) {
         return this.reservationDao.findPensionId(inventoryId);
     }
 
-    public Integer findDiscountId(int inventoryId){
+    public Integer findDiscountId(int inventoryId) {
         return this.reservationDao.findDiscountId(inventoryId);
     }
-    public Integer findRoomTypeId(int inventoryId){
+
+    public Integer findRoomTypeId(int inventoryId) {
         return this.reservationDao.findRoomTypeId(inventoryId);
     }
 
     public boolean save(Integer inventoryId, Integer hotelId, String hotelName, Integer discountId, Integer pensionId, Integer roomTypeId, Integer childCount, Integer adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost) {
         return this.reservationDao.save(inventoryId, hotelId, hotelName, discountId, pensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
+    }
+    public BigDecimal findPricePerNight(int inventoryId, int guestId){
+        return this.reservationDao.findPricePerNight(inventoryId, guestId);
     }
 
     public List<Object[]> getForTable(int size, List<Reservation> reservationList) {

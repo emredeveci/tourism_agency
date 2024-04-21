@@ -13,7 +13,7 @@ public class Room {
     private int hotel_id;
     private int room_type_id;
 
-    public Room(){
+    public Room() {
     }
 
     public int getInventory_id() {

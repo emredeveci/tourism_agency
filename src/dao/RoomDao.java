@@ -4,6 +4,7 @@ import core.DatabaseConnection;
 import entity.Hotel;
 import entity.Room;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;

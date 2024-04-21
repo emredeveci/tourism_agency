@@ -5,9 +5,16 @@ import core.Utility;
 import entity.Reservation;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,6 +55,13 @@ public class ReservationView extends Layout {
     private JButton btn_reservation_submit;
     private JPanel container;
     private JTextField fld_reservations_children;
+    Integer childCount;
+    Integer adultCount;
+    String startDateString;
+    String endDateString;
+    LocalDate startDate;
+    LocalDate endDate;
+    Integer dayCount;
 
     private ReservationManager reservationManager;
 
@@ -55,7 +69,6 @@ public class ReservationView extends Layout {
         this.add(container);
         this.guiInitialize(1200, 900);
         this.reservationManager = new ReservationManager();
-
 
         if (Objects.equals(purpose, "reserve")) {
             this.lbl_reservation_menu.setText("Make Reservation");
@@ -65,29 +78,75 @@ public class ReservationView extends Layout {
             dispose();
         }
 
+        JTextField[] textFields = { fld_reservations_children, fld_reservations_adult, fld_reservations_startdate, fld_reservations_enddate };
+        addListenersToTextFields(textFields);
+
+        //values that won't change when the agent opens up the reservation window
         List<Object[]> amenitiesData = reservationManager.findAllAmenities(inventoryId);
         List<Object[]> roomFeatures = reservationManager.findAllFeatures(inventoryId);
         List<Object[]> hotelInfoList = reservationManager.findHotelInfo(inventoryId);
         List<Object[]> roomInfoList = reservationManager.findRoomInfo(inventoryId);
+        BigDecimal childPrice = reservationManager.findPricePerNight(inventoryId, 2);
+        BigDecimal adultPrice = reservationManager.findPricePerNight(inventoryId, 1);
         Integer discountId = reservationManager.findDiscountId(inventoryId);
         Integer roomPensionId = reservationManager.findPensionId(inventoryId);
         Integer roomTypeId = reservationManager.findRoomTypeId(inventoryId);
+        Integer hotelId = (int) hotelInfoList.get(0)[0];
+        String hotelName = (String) hotelInfoList.get(0)[1];
+
+        //values that will constantly update with keyboard events
+//        final Integer[] childCount = new Integer[1];
+//        final Integer[] adultCount = new Integer[1];
+//        final String[] startDateString = new String[1];
+//        final String[] endDateString = new String[1];
+//        final LocalDate[] startDate = new LocalDate[1];
+//        final LocalDate[] endDate = new LocalDate[1];
+//        final Integer[] dayCount = new Integer[1];
 
         preselectAmenityCheckboxes(amenitiesData);
         preselectFeatureCheckboxes(roomFeatures);
         preFillHotelInformation(hotelInfoList);
         prefillRoomInformation(roomInfoList);
 
+
+
+        fld_reservations_children.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+        });
+
+// Add a change listener to fld_reservations_adult
+        fld_reservations_adult.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateTotalCost();
+            }
+        });
+
         this.btn_reservation_submit.addActionListener(e -> {
             boolean result = false;
-            Integer hotelId = (int) hotelInfoList.get(0)[0];
-            String hotelName = (String) hotelInfoList.get(0)[1];
-            Integer childCount = Integer.valueOf(fld_reservations_children.getText().trim());
-            Integer adultCount = Integer.valueOf(fld_reservations_adult.getText().trim());
-            String startDateString = fld_reservations_startdate.getText().trim();
-            String endDateString = fld_reservations_enddate.getText().trim();
-            LocalDate startDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDate endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String guestName = fld_reservations_guestname.getText().trim();
             String guestPhone = fld_reservations_phone.getText().trim();
             String guestIdNo = fld_reservations_guestId.getText().trim();
@@ -194,4 +253,78 @@ public class ReservationView extends Layout {
             fld_reservations_size.setText(roomSize);
         }
     }
+
+    // Method to update the total cost based on the number of children and adults
+    private void updateTotalCost() {
+        try {
+            // Get the values from the text fields
+            int childrenCount = Integer.parseInt(fld_reservations_children.getText().trim());
+            int adultCount = Integer.parseInt(fld_reservations_adult.getText().trim());
+
+            // Calculate the total cost based on your business logic
+            BigDecimal totalCost = calculateTotalCost(childrenCount, adultCount);
+
+            // Update the fld_reservations_cost text field with the new total cost
+            fld_reservations_cost.setText(totalCost.toString());
+        } catch (NumberFormatException ex) {
+            // Handle the case where the user enters invalid input (non-numeric characters)
+            fld_reservations_cost.setText("Invalid input");
+        }
+    }
+
+    // Method to calculate the total cost based on the number of children and adults
+    private BigDecimal calculateTotalCost(int childrenCount, int adultCount) {
+        // Your business logic to calculate the total cost goes here
+        // Example: Assume each child costs $50 and each adult costs $100
+        BigDecimal childCost = BigDecimal.valueOf(50).multiply(BigDecimal.valueOf(childrenCount));
+        BigDecimal adultCost = BigDecimal.valueOf(100).multiply(BigDecimal.valueOf(adultCount));
+        return childCost.add(adultCost);
+    }
+
+    private void addListenersToTextFields(JTextField[] textFields) {
+        for (JTextField textField : textFields) {
+            textField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    recalculate();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    recalculate();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    recalculate();
+                }
+            });
+        }
+    }
+
+    private void recalculate() {
+
+        if(!fld_reservations_adult.getText().isEmpty() && !fld_reservations_children.getText().isEmpty() && !fld_reservations_enddate.getText().isEmpty() && !fld_reservations_startdate.getText().isEmpty()){
+            try{
+                childCount = Integer.valueOf(fld_reservations_children.getText().trim());
+                adultCount = Integer.valueOf(fld_reservations_adult.getText().trim());
+                startDateString = fld_reservations_startdate.getText().trim();
+                endDateString = fld_reservations_enddate.getText().trim();
+                startDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                dayCount = (int) ChronoUnit.DAYS.between(startDate, endDate);
+            } catch (NumberFormatException | DateTimeParseException ex) {
+                // Handle invalid input
+                ex.printStackTrace(); // Or show an error message
+            }
+        }
+
+        System.out.println("Child Count: " + childCount);
+        System.out.println("Adult Count: " + adultCount);
+        System.out.println("Start Date: " + startDate);
+        System.out.println("End Date: " + endDate);
+        System.out.println("Day Count: " + dayCount);
+
+    }
 }
+

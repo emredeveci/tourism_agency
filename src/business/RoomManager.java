@@ -14,7 +14,7 @@ public class RoomManager {
 
     private final RoomDao roomDao;
 
-    public RoomManager(){
+    public RoomManager() {
         this.roomDao = new RoomDao();
     }
 
@@ -26,7 +26,7 @@ public class RoomManager {
         return this.roomDao.delete(inventoryId);
     }
 
-    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, Integer stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures){
+    public boolean save(int hotelId, int roomType, int pensionType, int seasonId, Integer stock, int numberOfBeds, String roomSize, double adultPrice, double childPrice, List<String> selectedRoomFeatures) {
         return this.roomDao.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
     }
 
@@ -34,7 +34,7 @@ public class RoomManager {
         return this.roomDao.getByInventoryId(inventoryId);
     }
 
-    public List<Room> findAll(){
+    public List<Room> findAll() {
         return this.roomDao.findAll();
     }
 
@@ -42,49 +42,51 @@ public class RoomManager {
         return this.roomDao.findAllRoomDetails(inventoryId);
     }
 
-    public List<Object[]> findAllRoomFeatures(int inventoryId){
+    public List<Object[]> findAllRoomFeatures(int inventoryId) {
         return this.roomDao.findAllRoomFeatures(inventoryId);
     }
 
-    public String[] getRoomTypesForHotel(int inventoryId){
+    public String[] getRoomTypesForHotel(int inventoryId) {
         return this.roomDao.findRoomTypesForHotel(inventoryId);
     }
 
-    public String[] getPensionTypesForHotel(int inventoryId){
+    public String[] getPensionTypesForHotel(int inventoryId) {
         return this.roomDao.getPensionTypesForHotel(inventoryId);
     }
 
-    public String[] getSeasonTypesForHotel(int inventoryId){
+    public String[] getSeasonTypesForHotel(int inventoryId) {
         return this.roomDao.getSeasonTypesForHotel(inventoryId);
     }
 
-    public int findHotelIdByInventoryId(int inventoryId){
+    public int findHotelIdByInventoryId(int inventoryId) {
         return this.roomDao.findHotelIdByInventoryId(inventoryId);
     }
 
-    public Map<Integer, String> getHotelNames(){
+    public Map<Integer, String> getHotelNames() {
         return this.roomDao.getHotelNames();
     }
 
-    public Map<Integer, String> getRoomTypesForMap(){
+    public Map<Integer, String> getRoomTypesForMap() {
         return this.roomDao.getRoomTypesForMap();
     }
 
-    public Map<Integer, String> getPensionTypesForMap(int selectedHotelId){
+    public Map<Integer, String> getPensionTypesForMap(int selectedHotelId) {
         return this.roomDao.getPensionTypesForMap(selectedHotelId);
     }
 
-    public Map<Integer, String> getSeasonTypesForMap(int selectedHotelId){
+    public Map<Integer, String> getSeasonTypesForMap(int selectedHotelId) {
         return this.roomDao.getSeasonTypesForMap(selectedHotelId);
     }
 
-    public Map<Integer, String> getCityNames(Integer selectedHotelId){
+    public Map<Integer, String> getCityNames(Integer selectedHotelId) {
         return this.roomDao.getCityNames(selectedHotelId);
     }
-    public List<Room> getForRoomSearch(String hotelName, String cityName, LocalDate startDate, LocalDate endDate, Integer adultCount, Integer childCount){
+
+    public List<Room> getForRoomSearch(String hotelName, String cityName, LocalDate startDate, LocalDate endDate, Integer adultCount, Integer childCount) {
         return this.roomDao.getForRoomSearch(hotelName, cityName, startDate, endDate, adultCount, childCount);
     }
-    public List<Object[]> getForTable(int size, List<Room> roomList){
+
+    public List<Object[]> getForTable(int size, List<Room> roomList) {
         List<Object[]> roomObjList = new ArrayList<>();
         for (Room obj : roomList) {
             int i = 0;

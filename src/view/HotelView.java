@@ -53,7 +53,7 @@ public class HotelView extends Layout {
     private HotelManager hotelManager;
     Integer[] stars = {5, 4, 3, 2, 1};
 
-    public HotelView(Hotel hotel){
+    public HotelView(Hotel hotel) {
         this.hotel = hotel;
         this.hotelManager = new HotelManager();
         this.add(container);
@@ -61,7 +61,7 @@ public class HotelView extends Layout {
 
         this.cmb_stars.setModel(new DefaultComboBoxModel<>(stars));
 
-        if(hotel != null){
+        if (hotel != null) {
             this.fld_name.setText(hotel.getHotel_name());
             this.fld_city.setText(hotel.getCity());
             this.fld_district.setText(hotel.getDistrict());
@@ -118,7 +118,7 @@ public class HotelView extends Layout {
             });
 
         }
-        
+
     }
 
     private List<String> getSelectedAmenities() {
@@ -132,16 +132,16 @@ public class HotelView extends Layout {
         if (cbox_swimmingpool.isSelected()) {
             selectedAmenities.add("Swimming pool");
         }
-        if(cbox_fitnesscenter.isSelected()){
+        if (cbox_fitnesscenter.isSelected()) {
             selectedAmenities.add("Fitness center");
         }
-        if(cbox_concierge.isSelected()){
+        if (cbox_concierge.isSelected()) {
             selectedAmenities.add("Concierge");
         }
-        if(cbox_spa.isSelected()){
+        if (cbox_spa.isSelected()) {
             selectedAmenities.add("Spa");
         }
-        if(cbox_roomservice.isSelected()){
+        if (cbox_roomservice.isSelected()) {
             selectedAmenities.add("24/7 Room service");
         }
 
@@ -159,16 +159,16 @@ public class HotelView extends Layout {
         if (cbox_roombreakfast.isSelected()) {
             selectedPensions.add("Room Breakfast");
         }
-        if(cbox_fullpension.isSelected()){
+        if (cbox_fullpension.isSelected()) {
             selectedPensions.add("Full Pension");
         }
-        if(cbox_halfpension.isSelected()){
+        if (cbox_halfpension.isSelected()) {
             selectedPensions.add("Half Pension");
         }
-        if(cbox_roomonly.isSelected()){
+        if (cbox_roomonly.isSelected()) {
             selectedPensions.add("Room Only");
         }
-        if(cbox_fullcredit.isSelected()){
+        if (cbox_fullcredit.isSelected()) {
             selectedPensions.add("Full Credit No Alcohol");
         }
 

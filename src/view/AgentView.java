@@ -175,10 +175,10 @@ public class AgentView extends Layout {
                 LocalDate endDate = null;
                 Integer adultCount = null;
                 Integer childCount = null;
-                if(!(((String) cmb_rooms_hotel.getSelectedItem()).isEmpty())){
+                if (!(((String) cmb_rooms_hotel.getSelectedItem()).isEmpty())) {
                     hotelName = (String) cmb_rooms_hotel.getSelectedItem();
                 }
-                if(!(((String) cmb_rooms_city.getSelectedItem()).isEmpty())){
+                if (!(((String) cmb_rooms_city.getSelectedItem()).isEmpty())) {
                     cityName = (String) cmb_rooms_city.getSelectedItem();
                 }
                 if (!startDateString.isEmpty()) {
@@ -187,10 +187,10 @@ public class AgentView extends Layout {
                 if (!endDateString.isEmpty()) {
                     endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 }
-                if(!fld_rooms_adults.getText().isEmpty()){
+                if (!fld_rooms_adults.getText().isEmpty()) {
                     adultCount = Integer.parseInt(fld_rooms_adults.getText());
                 }
-                if(!fld_rooms_children.getText().isEmpty()){
+                if (!fld_rooms_children.getText().isEmpty()) {
                     childCount = Integer.parseInt(fld_rooms_children.getText());
                 }
                 System.out.println(hotelName);
@@ -210,7 +210,7 @@ public class AgentView extends Layout {
             }
         });
 
-        this.btn_rooms_clear.addActionListener(e->{
+        this.btn_rooms_clear.addActionListener(e -> {
             loadRoomsTable(null);
             cmb_rooms_hotel.setSelectedItem(null);
             cmb_rooms_city.setSelectedItem(null);
@@ -227,7 +227,7 @@ public class AgentView extends Layout {
         List<Object[]> rooms;
 
         col_rooms = new Object[]{"Inventory ID", "Hotel", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
-        if(roomList == null){
+        if (roomList == null) {
             rooms = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
         } else {
             rooms = this.roomManager.getForTable(col_rooms.length, roomList);
@@ -251,7 +251,7 @@ public class AgentView extends Layout {
             int selectedRow = tbl_rooms.getSelectedRow();
             int reservationId = 0;
             if (selectedRow != -1) {
-                reservationId= Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
+                reservationId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
             }
             ReservationView reservationView = new ReservationView(reservationId, "reserve");
             reservationView.addWindowListener(new WindowAdapter() {
@@ -437,17 +437,17 @@ public class AgentView extends Layout {
         });
     }
 
-    private void loadReservationDetailsTable(List<Object[]> reservationsDetails, int selectedRow){
+    private void loadReservationDetailsTable(List<Object[]> reservationsDetails, int selectedRow) {
         col_reservation_details = new Object[]{"Pension Type", "Room Type", "Adult", "Children"};
-        if(reservationsDetails == null){
+        if (reservationsDetails == null) {
             List<Object[]> details = this.reservationManager.findAllReservationDetails(selectedRow);
             createTable(this.tmdl_reservation_details, this.tbl_reservation_details, col_reservation_details, details);
         }
     }
 
-    private void loadGuestDetailsTable(List<Object[]> guestDetails, int selectedRow){
+    private void loadGuestDetailsTable(List<Object[]> guestDetails, int selectedRow) {
         col_reservation_contact = new Object[]{"Name", "ID Number", "Phone", "Email"};
-        if(guestDetails == null){
+        if (guestDetails == null) {
             List<Object[]> details = this.reservationManager.findAllGuestDetails(selectedRow);
             createTable(this.tmdl_contact_details, this.tbl_guest_details, col_reservation_contact, details);
         }
