@@ -12,9 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,10 +65,12 @@ public class ReservationView extends Layout {
     BigDecimal childCost;
     BigDecimal adultCost;
     BigDecimal totalCost;
+    private Reservation reservation;
 
     private ReservationManager reservationManager;
 
-    public ReservationView(Integer inventoryId, String purpose) {
+    public ReservationView(Integer inventoryId, String purpose, Reservation reservation) {
+        this.reservation = reservation;
         this.add(container);
         this.guiInitialize(1200, 900);
         this.reservationManager = new ReservationManager();
@@ -104,25 +104,52 @@ public class ReservationView extends Layout {
         preFillHotelInformation(hotelInfoList);
         prefillRoomInformation(roomInfoList);
 
+        if(reservation != null){
+            LocalDate startDate = reservation.getStartDate();
+            LocalDate endDate = reservation.getEndDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedStartDate = startDate.format(formatter);
+            String formattedEndDate = endDate.format(formatter);
+            fld_reservations_startdate.setText(formattedStartDate);
+            fld_reservations_enddate.setText(formattedEndDate);
+            fld_reservations_guestname.setText(reservation.getGuestName());
+            fld_reservations_guestId.setText(reservation.getGuestIdentificationNumber());
+            fld_reservations_phone.setText(reservation.getGuestPhone());
+            fld_reservations_email.setText(reservation.getGuestEmail());
+            fld_reservations_adult.setText(String.valueOf(reservation.getAdultCount()));
+            fld_reservations_children.setText(String.valueOf(reservation.getChildCount()));
+            fld_reservations_cost.setText(reservation.getTotalCost().toString());
+        }
+
         this.btn_reservation_submit.addActionListener(e -> {
             if (isFormValid(container)) {
-                boolean result = false;
+
+                boolean saved = false;
+                boolean updated = false;
                 String guestName = fld_reservations_guestname.getText().trim();
                 String guestPhone = fld_reservations_phone.getText().trim();
                 String guestIdNo = fld_reservations_guestId.getText().trim();
-                String guestEmail = fld_reservations_guestId.getText().trim();
+                String guestEmail = fld_reservations_email.getText().trim();
 
-                result = this.reservationManager.save(inventoryId, hotelId, hotelName, discountId, roomPensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
+                if(reservation != null && recalculate()){
+                    updated = this.reservationManager.update(reservation.getReservationId(), childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
+                } else {
+                    saved = this.reservationManager.save(inventoryId, hotelId, hotelName, discountId, roomPensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
+                }
 
-                if (result) {
-                    boolean update = this.reservationManager.adjustInventoryAfterAdd(inventoryId);
-                    if (update) {
-                        Utility.showMessage("done");
+                if (saved) {
+                    boolean adjusted = this.reservationManager.adjustInventoryAfterAdd(inventoryId);
+                    if (adjusted) {
+                        Utility.showMessage("reservation");
                         dispose();
                     }
+                } else if(updated){
+                    Utility.showMessage("reservation update");
+                    dispose();
                 } else {
                     Utility.showMessage("error");
                 }
+
             } else {
                 Utility.showMessage("fill");
             }
@@ -239,7 +266,7 @@ public class ReservationView extends Layout {
         }
     }
 
-    private void recalculate() {
+    private Boolean recalculate() {
 
         if (!fld_reservations_adult.getText().isEmpty() && !fld_reservations_children.getText().isEmpty() && !fld_reservations_enddate.getText().isEmpty() && !fld_reservations_startdate.getText().isEmpty()) {
             try {
@@ -260,7 +287,10 @@ public class ReservationView extends Layout {
             } catch (NumberFormatException | DateTimeParseException ex) {
                 ex.printStackTrace();
             }
+        } else {
+            return false;
         }
+        return true;
     }
 
     private boolean isFormValid(Container container) {

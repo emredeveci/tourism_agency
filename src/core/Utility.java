@@ -37,6 +37,14 @@ public class Utility {
                 msg = "An error occurred.";
                 title = "Error";
                 break;
+            case "reservation":
+                msg = "Your reservation has been made. Stock numbers have been adjusted accordingly.";
+                title = "Reservation Successful";
+                break;
+            case "reservation update":
+                msg = "Your reservation has been successfully updated.";
+                title = "Update Successful";
+                break;
             default:
                 msg = str;
                 title = "Tourism Agency";

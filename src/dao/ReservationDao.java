@@ -37,6 +37,28 @@ public class ReservationDao {
         return reservationList;
     }
 
+    public Reservation findByReservationId(int reservationId) {
+        Reservation obj = null;
+
+        String query = "SELECT r.reservation_id, r.inventory_id, r.hotel_id, h.hotel_name, h.city, r.discount_id, r.pension_id, pt.pension_type, r.room_type_id, rt.room_type_name, r.child_count, r.adult_count, r.start_date, r.end_date, r.guest_name, r.guest_phone, r.guest_identification_number, r.guest_email, r.total_cost " +
+                "FROM public.reservations r " +
+                "JOIN public.hotels h ON r.hotel_id = h.hotel_id " +
+                "LEFT JOIN public.pension_types pt ON r.pension_id = pt.pension_id " +
+                "LEFT JOIN public.room_types rt ON r.room_type_id = rt.room_type_id " +
+                "WHERE r.reservation_id = ?";
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, reservationId);
+            ResultSet rs = pr.executeQuery();
+            if (rs.next()) {
+                obj = this.match(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return obj;
+    }
+
     public Integer findInventoryId(int reservationId) {
         Integer inventoryId = null;
 
@@ -379,6 +401,30 @@ public class ReservationDao {
         return true;
     }
 
+    public boolean update(int reservationId, int childCount, int adultCount, LocalDate startDate, LocalDate endDate, String guestName, String guestPhone, String guestIdNo, String guestEmail, BigDecimal totalCost) {
+        String query = "UPDATE public.reservations " +
+                "SET child_count = ?, adult_count = ?, start_date = ?, end_date = ?, guest_name = ?, guest_phone = ?, guest_identification_number = ?, guest_email = ?, total_cost = ? " +
+                "WHERE reservation_id = ?";
+
+        try {
+            PreparedStatement pr = this.databaseConnection.getConnection().prepareStatement(query);
+            pr.setInt(1, childCount);
+            pr.setInt(2, adultCount);
+            pr.setDate(3, Date.valueOf(startDate));
+            pr.setDate(4, Date.valueOf(endDate));
+            pr.setString(5, guestName);
+            pr.setString(6, guestPhone);
+            pr.setString(7, guestIdNo);
+            pr.setString(8, guestEmail);
+            pr.setBigDecimal(9, totalCost);
+            pr.setInt(10, reservationId);
+
+            return pr.executeUpdate() != -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public Reservation match(ResultSet rs) throws SQLException {
         Reservation reservation = new Reservation();

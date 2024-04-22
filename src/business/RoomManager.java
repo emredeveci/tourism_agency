@@ -93,6 +93,7 @@ public class RoomManager {
             Object[] rowObject = new Object[size];
             rowObject[i++] = obj.getInventory_id();
             rowObject[i++] = obj.getHotel_name();
+            rowObject[i++] = obj.getCity();
             rowObject[i++] = obj.getRoom_type();
             rowObject[i++] = obj.getPension_type();
             rowObject[i++] = obj.getDiscount_id();

@@ -4,6 +4,7 @@ public class Room {
 
     private int inventory_id;
     private String hotel_name;
+    private String city;
     private String pension_type;
     private int discount_id;
     private String room_type;
@@ -94,5 +95,13 @@ public class Room {
 
     public void setChild_price(double child_price) {
         this.child_price = child_price;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

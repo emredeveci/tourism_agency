@@ -49,7 +49,7 @@ public class RoomDao {
         List<Room> roomList = new ArrayList<>();
 
         // Prepare SQL query
-        String query = "SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
+        String query = "SELECT ri.inventory_id, h.hotel_name, h.city, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
                 "FROM room_inventory ri " +
                 "JOIN hotels h ON ri.hotel_id = h.hotel_id " +
                 "LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id " +
@@ -76,6 +76,7 @@ public class RoomDao {
                 room.setQuantity_available(resultSet.getInt("quantity_available"));
                 room.setAdult_price(resultSet.getDouble("adult_price"));
                 room.setChild_price(resultSet.getDouble("child_price"));
+                room.setCity(resultSet.getString("city"));
 
                 // Add Room object to roomList
                 roomList.add(room);
@@ -170,7 +171,7 @@ public class RoomDao {
 
         // Prepare SQL query
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price ");
+        queryBuilder.append("SELECT ri.inventory_id, h.hotel_name, h.city, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price ");
         queryBuilder.append("FROM room_inventory ri ");
         queryBuilder.append("JOIN hotels h ON ri.hotel_id = h.hotel_id ");
         queryBuilder.append("LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id ");
@@ -236,6 +237,7 @@ public class RoomDao {
                     room.setQuantity_available(resultSet.getInt("quantity_available"));
                     room.setAdult_price(resultSet.getDouble("adult_price"));
                     room.setChild_price(resultSet.getDouble("child_price"));
+                    room.setCity(resultSet.getString("city"));
 
                     // Add Room object to roomList
                     roomList.add(room);
@@ -534,6 +536,7 @@ public class RoomDao {
         room.setQuantity_available(rs.getInt("quantity_available"));
         room.setAdult_price(rs.getDouble("adult_price"));
         room.setChild_price(rs.getDouble("child_price"));
+        room.setCity(rs.getString("city"));
         return room;
     }
 }
