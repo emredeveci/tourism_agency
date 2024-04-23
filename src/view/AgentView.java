@@ -5,7 +5,7 @@ import business.ReservationManager;
 import business.RoomManager;
 import core.Utility;
 import entity.Hotel;
-import entity.Reservation;
+
 import entity.Room;
 import entity.User;
 
@@ -13,10 +13,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AgentView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JPanel pnl_top;
     private JLabel lbl_greeting;
@@ -63,6 +60,8 @@ public class AgentView extends Layout {
     private JTable tbl_guest_details;
     private JScrollPane scrl_guest_details;
     private JPanel pnl_room_search;
+    private JTable tbl_room_amenities;
+    private JScrollPane scrl_room_amenities;
 
     private User user;
     private Hotel hotel;
@@ -78,6 +77,7 @@ public class AgentView extends Layout {
     private DefaultTableModel tmdl_discount_periods = new DefaultTableModel(new Object[]{"ID", "Start Date", "End Date"}, 0);
     private DefaultTableModel tmdl_room_details = new DefaultTableModel(new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"}, 0);
     private DefaultTableModel tmdl_room_features = new DefaultTableModel(new Object[]{"Inventory ID", "Room Features"}, 0);
+    private DefaultTableModel tmdl_room_amenities = new DefaultTableModel(new Object[]{"Hotel ID", "Amenities"}, 0);
     private DefaultTableModel tmdl_reservation_details = new DefaultTableModel(new Object[]{"Pension Type", "Room Type", "Adult", "Children"}, 0);
     private DefaultTableModel tmdl_contact_details = new DefaultTableModel(new Object[]{"Name", "ID", "Phone", "Email"}, 0);
     private JPopupMenu hotel_menu;
@@ -90,6 +90,7 @@ public class AgentView extends Layout {
     private Object[] col_rooms;
     private Object[] col_room_details;
     private Object[] col_room_features;
+    private Object[] col_room_amenities;
     private Object[] col_reservations;
     private Object[] col_reservation_details;
     private Object[] col_reservation_contact;
@@ -109,7 +110,7 @@ public class AgentView extends Layout {
             dispose();
         }
 
-        //Start the tables empty until aa row is picked
+        //Show the table columns until a row is picked
         tbl_pension_types.setModel(tmdl_pensions);
         tbl_amenities.setModel(tmdl_amenities);
         tbl_discount_periods.setModel(tmdl_discount_periods);
@@ -117,6 +118,7 @@ public class AgentView extends Layout {
         tbl_room_features.setModel(tmdl_room_features);
         tbl_reservation_details.setModel(tmdl_reservation_details);
         tbl_guest_details.setModel(tmdl_contact_details);
+        tbl_room_amenities.setModel(tmdl_room_amenities);
 
         String name = this.user.getUsername();
         String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
@@ -124,6 +126,7 @@ public class AgentView extends Layout {
 
         loadComponent();
 
+        //Fill all the necessary tables with data from the database
         //Tab: Hotels
         loadHotelTable(null);
 
@@ -166,8 +169,18 @@ public class AgentView extends Layout {
             }
         });
 
+        //CRITERIA 15 - Room search with a dynamic query. Any of the criteria can be searched individually.
+        //CRITERIA 16
         this.btn_rooms_search.addActionListener(e -> {
-            if (cmb_rooms_city.getSelectedItem() == null || cmb_rooms_hotel.getSelectedItem() == null || (fld_rooms_start_date.getText().trim().isEmpty() && fld_rooms_end_date.getText().trim().isEmpty())) {
+            boolean hotelSelected = cmb_rooms_hotel.getSelectedItem() != null;
+            boolean citySelected = cmb_rooms_city.getSelectedItem() != null;
+            boolean startDateEntered = !fld_rooms_start_date.getText().trim().isEmpty();
+            boolean endDateEntered = !fld_rooms_end_date.getText().trim().isEmpty();
+
+            if ((hotelSelected && !citySelected && !startDateEntered && !endDateEntered) ||
+                    (!hotelSelected && citySelected && !startDateEntered && !endDateEntered) ||
+                    ((startDateEntered && endDateEntered) && (citySelected || hotelSelected)) ||
+                    (!startDateEntered && !endDateEntered && (citySelected || hotelSelected))) {
                 String hotelName = null;
                 String cityName = null;
                 String startDateString = fld_rooms_start_date.getText().trim();
@@ -197,13 +210,11 @@ public class AgentView extends Layout {
 
                 List<Room> searchResult = this.roomManager.getForRoomSearch(hotelName, cityName, startDate, endDate, adultCount, childCount);
 
-                if (!searchResult.isEmpty()) {
-                    loadRoomsTable(searchResult, "update");
-                } else {
-                    Utility.showMessage("error");
-                }
+                loadRoomsTable(searchResult, "update");
+
             } else {
-                Utility.showMessage("fill");
+                //CRITERIA 25
+                Utility.showMessage("incomplete search parameters");
             }
         });
 
@@ -219,11 +230,15 @@ public class AgentView extends Layout {
 
     }
 
+    /* CRITERIA 8 - In many of the methods below, employees can accomplish all the required tasks like
+    add/update/delete for hotels, rooms, reservations */
+
     private void loadRoomsTable(List<Room> roomList, String purpose) {
         tableRowSelect(this.tbl_rooms);
         List<Object[]> rooms;
 
-        col_rooms = new Object[]{"Inventory ID", "Hotel", "City", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
+        //CRITERIA 16 - Room information columns (several other information types are shown in different tables for a user-friendly design)
+        col_rooms = new Object[]{"Inventory ID", "Hotel", "City", "Room", "Pension", "Star", "Season", "Adult Price", "Child Price", "Stock"};
         if (roomList == null) {
             rooms = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
         } else {
@@ -234,7 +249,7 @@ public class AgentView extends Layout {
 
         this.room_menu = new JPopupMenu();
 
-        if(Objects.equals(purpose, "start")){
+        if (Objects.equals(purpose, "start")) {
 
             this.room_menu.add("Add").addActionListener(e -> {
                 RoomView roomView = new RoomView();
@@ -264,6 +279,7 @@ public class AgentView extends Layout {
                 });
             });
 
+            //CRITERIA 13
             this.btn_rooms_add.addActionListener(e -> {
                 RoomView roomView = new RoomView();
                 roomView.addWindowListener(new WindowAdapter() {
@@ -296,8 +312,10 @@ public class AgentView extends Layout {
                         }
                         populateHotelComboBoxForRoomSearch();
                         populateCityComboBoxForRoomSearch(null);
+                        //CRITERIA 24
                         Utility.showMessage("done");
                     } else {
+                        //CRITERIA 25
                         Utility.showMessage("error");
                     }
                 }
@@ -306,6 +324,7 @@ public class AgentView extends Layout {
 
             this.tbl_rooms.setComponentPopupMenu(room_menu);
 
+            //CRITERIA 16 - All the room related information are populated in these tables
             tbl_rooms.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
@@ -315,6 +334,7 @@ public class AgentView extends Layout {
                             int selectedInventoryId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
                             loadRoomDetailsTable(null, selectedInventoryId);
                             loadRoomFeaturesTable(null, selectedInventoryId);
+                            loadRoomAmenitiesTable(null, selectedInventoryId);
                         }
                     }
                 }
@@ -336,6 +356,7 @@ public class AgentView extends Layout {
         loadHotelTable(hotelList, null);
     }
 
+    //CRITERIA 10 - Employees can accomplish all the required 'hotel related' tasks in the project
     private void loadHotelTable(List<Object[]> hotelList, Integer selectedHotelId) {
         tableRowSelect(this.tbl_hotels);
         this.hotel_menu = new JPopupMenu();
@@ -347,6 +368,7 @@ public class AgentView extends Layout {
 
         createTable(this.tmdl_hotels, this.tbl_hotels, col_hotel, hotelList);
 
+        //CRITERIA 10 - Employees can add/update/delete hotels with all the required specifications in the project
         this.hotel_menu.add("Add").addActionListener(e -> {
             HotelView userView = new HotelView(new Hotel());
             userView.addWindowListener(new WindowAdapter() {
@@ -394,8 +416,10 @@ public class AgentView extends Layout {
                             tbl_hotels.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
                         }
                     }
+                    //CRITERIA 24
                     Utility.showMessage("done");
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
             }
@@ -419,6 +443,7 @@ public class AgentView extends Layout {
         });
     }
 
+    //CRITERIA 20 - Table for all the existing reservations
     private void loadReservationsTable() {
         tableRowSelect(this.tbl_reservations);
 
@@ -430,10 +455,12 @@ public class AgentView extends Layout {
 
         this.reservation_menu = new JPopupMenu();
 
-        this.reservation_menu.add("Remove").addActionListener(e -> {
+        //CRITERIA 22 - Delete Reservation
+        this.reservation_menu.add("Delete").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
                 int selectedReservationId = this.getTableSelectedRow(tbl_reservations, 0);
                 int selectedInventoryId = this.reservationManager.findInventoryId(selectedReservationId);
+                //CRITERIA 23 - Increase room stock after reservation deletion
                 if (this.reservationManager.deleteReservation(selectedReservationId) && this.reservationManager.adjustInventoryAfterRemove(selectedInventoryId)) {
                     DefaultTableModel model = (DefaultTableModel) tbl_reservations.getModel();
                     int selectedRow = tbl_reservations.getSelectedRow(); // Get the selected row index before removing
@@ -448,15 +475,18 @@ public class AgentView extends Layout {
                             tbl_reservations.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
                         }
                     }
+                    //CRITERIA 24
                     Utility.showMessage("done");
                     loadReservationsTable();
                     loadRoomsTable(null, "update");
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
             }
         });
 
+        //CRITERIA 21 - Update Reservation
         this.reservation_menu.add("Update").addActionListener(e -> {
             int selectedReservationId = this.getTableSelectedRow(tbl_reservations, 0);
             int selectedInventoryId = this.reservationManager.findInventoryId(selectedReservationId);
@@ -540,6 +570,14 @@ public class AgentView extends Layout {
         if (roomFeaturesList == null) {
             List<Object[]> roomFeatures = this.roomManager.findAllRoomFeatures(selectedInventoryId);
             createTable(this.tmdl_room_features, this.tbl_room_features, col_room_features, roomFeatures);
+        }
+    }
+
+    private void loadRoomAmenitiesTable(List<Object[]> roomAmenities, int selectedRow) {
+        col_room_amenities = new Object[]{"Hotel ID", "Amenity"};
+        if (roomAmenities == null) {
+            List<Object[]> amenities = this.roomManager.findAllRoomAmenities(selectedRow);
+            createTable(this.tmdl_room_amenities, this.tbl_room_amenities, col_room_amenities, amenities);
         }
     }
 

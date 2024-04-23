@@ -18,6 +18,7 @@ public class RoomDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
+    //CRITERIA 1
     public Room getByInventoryId(int id) {
         Room obj = null;
         String query = "SELECT ri.inventory_id, h.hotel_name, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
@@ -49,7 +50,7 @@ public class RoomDao {
         List<Room> roomList = new ArrayList<>();
 
         // Prepare SQL query
-        String query = "SELECT ri.inventory_id, h.hotel_name, h.city, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
+        String query = "SELECT ri.inventory_id, h.hotel_name, h.city, h.star_rating, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price " +
                 "FROM room_inventory ri " +
                 "JOIN hotels h ON ri.hotel_id = h.hotel_id " +
                 "LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id " +
@@ -77,6 +78,7 @@ public class RoomDao {
                 room.setAdult_price(resultSet.getDouble("adult_price"));
                 room.setChild_price(resultSet.getDouble("child_price"));
                 room.setCity(resultSet.getString("city"));
+                room.setStar(resultSet.getInt("star_rating"));
 
                 // Add Room object to roomList
                 roomList.add(room);
@@ -171,7 +173,7 @@ public class RoomDao {
 
         // Prepare SQL query
         StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT ri.inventory_id, h.hotel_name, h.city, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price ");
+        queryBuilder.append("SELECT ri.inventory_id, h.hotel_name, h.city, h.star_rating, pt.pension_type, dp.discount_id, rt.room_type_name, ri.quantity_available, p.price_per_night AS adult_price, p2.price_per_night AS child_price ");
         queryBuilder.append("FROM room_inventory ri ");
         queryBuilder.append("JOIN hotels h ON ri.hotel_id = h.hotel_id ");
         queryBuilder.append("LEFT JOIN hotel_pensions hp ON ri.hotel_id = hp.hotel_id ");
@@ -238,6 +240,7 @@ public class RoomDao {
                     room.setAdult_price(resultSet.getDouble("adult_price"));
                     room.setChild_price(resultSet.getDouble("child_price"));
                     room.setCity(resultSet.getString("city"));
+                    room.setStar(resultSet.getInt("star_rating"));
 
                     // Add Room object to roomList
                     roomList.add(room);
@@ -400,6 +403,32 @@ public class RoomDao {
         }
 
         return hotelId;
+    }
+
+    public List<Object[]> findAllRoomAmenities(int inventoryId) {
+        List<Object[]> amenityData = new ArrayList<>();
+        String query = "SELECT ri.inventory_id, ri.hotel_id, a.amenity_name " +
+                "FROM room_inventory ri " +
+                "JOIN hotel_amenities ha ON ri.hotel_id = ha.hotel_id " +
+                "JOIN amenities a ON ha.amenity_id = a.amenity_id " +
+                "WHERE ri.inventory_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, inventoryId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int hotelId = resultSet.getInt("hotel_id");
+                String amenityName = resultSet.getString("amenity_name");
+                Object[] rowData = {hotelId, amenityName};
+                amenityData.add(rowData);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return amenityData;
     }
 
     public Map<Integer, String> getRoomTypesForMap() {

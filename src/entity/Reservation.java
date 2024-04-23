@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Reservation {
+    //CRITERIA 1
     private int reservationId;
     private int inventoryId;
     private int hotelId;

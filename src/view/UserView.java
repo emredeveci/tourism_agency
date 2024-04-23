@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.util.Objects;
 
 public class UserView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JLabel lbl_title;
     private JLabel lbl_username;
@@ -40,6 +41,7 @@ public class UserView extends Layout {
 
         this.btn_submit.addActionListener(e -> {
             if (Utility.isFieldListEmpty(new JTextField[]{this.fld_username, this.fld_password})) {
+                //CRITERIA 25
                 Utility.showMessage("fill");
             } else {
                 boolean result = false;
@@ -54,9 +56,11 @@ public class UserView extends Layout {
                 }
 
                 if (result) {
+                    //CRITERIA 24
                     Utility.showMessage("done");
                     dispose();
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
             }

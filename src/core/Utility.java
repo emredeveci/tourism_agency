@@ -54,6 +54,10 @@ public class Utility {
                 msg = "The number of guests cannot exceed the number of beds.";
                 title = "Error";
                 break;
+            case "incomplete search parameters":
+                msg = "You need to enter at least one of these: hotel, city, or start AND end dates.";
+                title = "Date error";
+                break;
             default:
                 msg = str;
                 title = "Tourism Agency";

@@ -1,6 +1,7 @@
 package entity;
 
 public class PensionType {
+    //CRITERIA 1
     private int pension_id;
     private String pension_type;
 

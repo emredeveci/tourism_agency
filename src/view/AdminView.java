@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class AdminView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JButton btn_logout;
     private JLabel lbl_greeting;
@@ -81,11 +82,12 @@ public class AdminView extends Layout {
         this.cmb_user_role.setModel(new DefaultComboBoxModel<>(userRoles));
 
         btn_user_search.addActionListener(e -> {
-            if(cmb_user_role.getSelectedItem() != ""){
+            if (cmb_user_role.getSelectedItem() != "") {
                 List<User> userList = this.userManager.searchForUsers(Objects.requireNonNull(cmb_user_role.getSelectedItem()).toString());
                 List<Object[]> userRow = this.userManager.getForTable(this.col_user.length, userList);
                 loadUserTable(userRow);
             } else {
+                //CRITERIA 25
                 Utility.showMessage("pick a role");
             }
         });
@@ -96,6 +98,7 @@ public class AdminView extends Layout {
 
     }
 
+    //CRITERIA 7 - Admins can add/update/delete users employees(agents)
     private void loadUserComponent() {
         tableRowSelect(this.tbl_user);
         this.user_menu = new JPopupMenu();
@@ -127,8 +130,10 @@ public class AdminView extends Layout {
                 if (this.userManager.delete(selectUserId)) {
                     DefaultTableModel model = (DefaultTableModel) tbl_user.getModel();
                     model.removeRow(tbl_user.getSelectedRow());
+                    //CRITERIA 24
                     Utility.showMessage("done");
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
             }

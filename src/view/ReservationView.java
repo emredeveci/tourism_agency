@@ -3,6 +3,7 @@ package view;
 import business.ReservationManager;
 import core.Utility;
 import entity.Reservation;
+import javafx.beans.binding.When;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReservationView extends Layout {
+    //CRITERIA 1
     private JLabel lbl_reservation_menu;
     private JTextField fld_reservation_hotel;
     private JTextField fld_reservation_city;
@@ -121,6 +123,8 @@ public class ReservationView extends Layout {
             fld_reservations_cost.setText(reservation.getTotalCost().toString());
         }
 
+        //CRITERIA 18 - Make Reservation
+        //CRITERIA 21 - Update Reservation
         this.btn_reservation_submit.addActionListener(e -> {
             if (isFormValid(container)) {
 
@@ -135,6 +139,8 @@ public class ReservationView extends Layout {
                     Utility.showMessage("bed limit");
                     return;
                 }
+                /* CRITERIA 17 - Price is constantly calculated based on the entered information,
+                and is calculated one final time before the save/update is completed */
 
                 if (reservation != null && recalculate()) {
                     updated = this.reservationManager.update(reservation.getReservationId(), childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
@@ -143,19 +149,24 @@ public class ReservationView extends Layout {
                 }
 
                 if (saved) {
+                    //CRITERIA 19 - Decrease room stock after successful reservation
                     boolean adjusted = this.reservationManager.adjustInventoryAfterAdd(inventoryId);
                     if (adjusted) {
+                        //CRITERIA 24
                         Utility.showMessage("reservation");
                         dispose();
                     }
                 } else if (updated) {
+                    //CRITERIA 24
                     Utility.showMessage("reservation update");
                     dispose();
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
 
             } else {
+                //CRITERIA 25
                 Utility.showMessage("fill");
             }
         });
@@ -271,14 +282,16 @@ public class ReservationView extends Layout {
         }
     }
 
+    /* CRITERIA 17 - When the related information is entered, this method fires to calculate the total cost
+    It constantly updates when the information is changed
+    The price CANNOT be entered or altered by the user
+    */
     private Boolean recalculate() {
-
 
         if (!fld_reservations_adult.getText().isEmpty() && !fld_reservations_children.getText().isEmpty() && !fld_reservations_enddate.getText().isEmpty() && !fld_reservations_startdate.getText().isEmpty()) {
             try {
                 childCount = Integer.valueOf(fld_reservations_children.getText().trim());
                 adultCount = Integer.valueOf(fld_reservations_adult.getText().trim());
-
 
                 if (fld_reservations_startdate.getText().length() == 10 && fld_reservations_enddate.getText().length() == 10) {
                     startDateString = fld_reservations_startdate.getText().trim();

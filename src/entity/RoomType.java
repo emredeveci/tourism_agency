@@ -1,6 +1,7 @@
 package entity;
 
 public class RoomType {
+    //CRITERIA 1
     private int room_type_id;
     private String room_type_name;
     private int number_of_beds;

@@ -1,6 +1,7 @@
 package entity;
 
 public class RoomInventory {
+    //CRITERIA 1
     private int inventory_id;
     private int hotel_id;
     private int room_id;

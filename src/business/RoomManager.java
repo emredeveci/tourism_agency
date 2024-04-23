@@ -18,8 +18,10 @@ public class RoomManager {
         this.roomDao = new RoomDao();
     }
 
+    //CRITERIA 1
     public boolean delete(int inventoryId) {
         if (this.getByInventoryId(inventoryId) == null) {
+            //CRITERIA 25
             Utility.showMessage("Room with ID " + inventoryId + " could not be found.");
             return false;
         }
@@ -62,6 +64,10 @@ public class RoomManager {
         return this.roomDao.findHotelIdByInventoryId(inventoryId);
     }
 
+    public List<Object[]> findAllRoomAmenities(int inventoryId) {
+        return this.roomDao.findAllRoomAmenities(inventoryId);
+    }
+
     public Map<Integer, String> getHotelNames() {
         return this.roomDao.getHotelNames();
     }
@@ -96,6 +102,7 @@ public class RoomManager {
             rowObject[i++] = obj.getCity();
             rowObject[i++] = obj.getRoom_type();
             rowObject[i++] = obj.getPension_type();
+            rowObject[i++] = obj.getStar();
             rowObject[i++] = obj.getDiscount_id();
             rowObject[i++] = obj.getAdult_price();
             rowObject[i++] = obj.getChild_price();

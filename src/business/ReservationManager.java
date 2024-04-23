@@ -18,6 +18,7 @@ public class ReservationManager {
         this.reservationDao = new ReservationDao();
     }
 
+    //CRITERIA 1
     public List<Reservation> findAll() {
         return this.reservationDao.findAll();
     }

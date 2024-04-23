@@ -3,6 +3,7 @@ package entity;
 import java.util.Date;
 
 public class DiscountPeriod {
+    //CRITERIA 1
     private int discount_id;
     private int hotel_id;
     private Date start_date;

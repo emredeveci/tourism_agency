@@ -2,6 +2,7 @@ package entity;
 
 public class Amenity {
 
+    //CRITERIA 1
     private int amenity_id;
     private String amenity_name;
 

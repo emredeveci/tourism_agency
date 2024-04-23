@@ -1,6 +1,7 @@
 package entity;
 
 public class HotelPension {
+    //CRITERIA 1
     private int hotel_id;
     private int pension_id;
 

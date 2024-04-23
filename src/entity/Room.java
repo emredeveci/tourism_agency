@@ -2,9 +2,11 @@ package entity;
 
 public class Room {
 
+    //CRITERIA 1
     private int inventory_id;
     private String hotel_name;
     private String city;
+    private int star;
     private String pension_type;
     private int discount_id;
     private String room_type;
@@ -103,5 +105,13 @@ public class Room {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public int getStar() {
+        return star;
+    }
+
+    public void setStar(int star) {
+        this.star = star;
     }
 }

@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class RoomView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JComboBox<String> cmb_rooms_hotel_name;
     private JComboBox cmb_rooms_room_type;
@@ -125,6 +126,9 @@ public class RoomView extends Layout {
             } else {
                 boolean result = false;
 
+                /* CRITERIA 13, 14 - Employee can add the room with all the necessary information such as
+                hotel name, room type, pension type, bed count, room specific features, season information, stock, adult and child price */
+
                 int hotelId = selectedHotelId[0];
                 int roomType = selectedRoomId[0];
                 int pensionType = selectedPensionId[0];
@@ -140,9 +144,11 @@ public class RoomView extends Layout {
                 result = this.roomManager.save(hotelId, roomType, pensionType, seasonId, stock, numberOfBeds, roomSize, adultPrice, childPrice, selectedRoomFeatures);
 
                 if (result) {
+                    //CRITERIA 24
                     Utility.showMessage("done");
                     dispose();
                 } else {
+                    //CRITERIA 25
                     Utility.showMessage("error");
                 }
             }

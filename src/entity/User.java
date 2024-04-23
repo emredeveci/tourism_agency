@@ -1,6 +1,7 @@
 package entity;
 
 public class User {
+    //CRITERIA 1
     private int userId;
     private String username;
     private String password;

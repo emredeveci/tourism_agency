@@ -335,7 +335,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="Start Date"/>
+              <text value="Start Date (yyyy-mm-dd)"/>
             </properties>
           </component>
           <component id="c11db" class="javax.swing.JLabel">
@@ -344,7 +344,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="End Date"/>
+              <text value="End Date (yyyy-mm-dd)"/>
             </properties>
           </component>
           <component id="bb4c1" class="javax.swing.JTextField" binding="fld_season_one_start">
@@ -378,7 +378,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="Start Date"/>
+              <text value="Start Date (yyyy-mm-dd)"/>
             </properties>
           </component>
           <component id="35ee4" class="javax.swing.JLabel">
@@ -387,7 +387,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="End Date"/>
+              <text value="End Date (yyyy-mm-dd)"/>
             </properties>
           </component>
           <component id="37c99" class="javax.swing.JTextField" binding="fld_seasontwo_start">

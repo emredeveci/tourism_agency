@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
+    //CRITERIA 6 (with Singleton Pattern)
     //database connection parameters
     private static final String URL = "jdbc:postgresql://localhost:5432/tourismagency";
     private static final String USERNAME = "postgres";

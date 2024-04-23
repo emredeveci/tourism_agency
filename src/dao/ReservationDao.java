@@ -18,6 +18,7 @@ public class ReservationDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
+    //CRITERIA 1
     public List<Reservation> findAll() {
         List<Reservation> reservationList = new ArrayList<>();
         String query = "SELECT r.reservation_id, r.inventory_id, r.hotel_id, h.hotel_name, h.city, r.discount_id, r.pension_id, pt.pension_type, r.room_type_id, rt.room_type_name, r.child_count, r.adult_count, r.start_date, r.end_date, r.guest_name, r.guest_phone, r.guest_identification_number, r.guest_email, r.total_cost " +

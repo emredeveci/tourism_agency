@@ -16,6 +16,7 @@ public class HotelDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
+    //CRITERIA 1
     public Hotel getById(int id) {
         Hotel obj = null;
         String query = "SELECT * FROM public.hotels WHERE hotel_id = ?";

@@ -18,6 +18,7 @@ public class UserDao {
         this.databaseConnection = DatabaseConnection.getInstance();
     }
 
+    //CRITERIA 1
     public boolean save(User user) {
         String query = "INSERT INTO public.users " +
                 "(" +

@@ -3,6 +3,7 @@ package entity;
 import java.util.List;
 
 public class Hotel {
+    //CRITERIA 1
     private int hotel_id;
     private String hotel_name;
     private int star_rating;

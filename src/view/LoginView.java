@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.util.Objects;
 
 public class LoginView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JPanel login_title;
     private JPanel login_body;
@@ -50,14 +51,18 @@ public class LoginView extends Layout {
         btn_login.addActionListener(e -> handleLogin());
     }
 
+    //Depending on the user role, a different window opens
     private void handleLogin() {
         JTextField[] formFieldList = {this.fld_username, this.fld_password};
 
         if (Utility.isFieldListEmpty(formFieldList)) {
+            //CRITERIA 25
             Utility.showMessage("fill");
         } else {
             User loginUser = this.userManager.findByLogin(this.fld_username.getText(), this.fld_password.getText());
+            //CRITERIA 9
             if (loginUser == null) {
+                //CRITERIA 9
                 Utility.showMessage("notFound");
             } else {
                 if (Objects.equals(loginUser.getRole(), "admin")) {

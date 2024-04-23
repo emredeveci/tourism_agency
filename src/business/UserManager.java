@@ -15,8 +15,10 @@ public class UserManager {
         this.userDao = new UserDao();
     }
 
+    //CRITERIA 1
     public boolean save(User user) {
         if (this.getById(user.getUserId()) != null) {
+            //CRITERIA 25
             Utility.showMessage("error");
             return false;
         }
@@ -25,6 +27,7 @@ public class UserManager {
 
     public boolean update(User user) {
         if (this.getById(user.getUserId()) == null) {
+            //CRITERIA 25
             Utility.showMessage("Model with " + user.getUserId() + " could not be found.");
             return false;
         }

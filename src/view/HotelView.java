@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 public class HotelView extends Layout {
+    //CRITERIA 1
     private JPanel container;
     private JPanel pnl_title;
     private JTextField fld_name;
@@ -61,6 +62,9 @@ public class HotelView extends Layout {
 
         this.cmb_stars.setModel(new DefaultComboBoxModel<>(stars));
 
+        /* If a hotel is picked before this window opens,
+        all the necessary hotel information is retrieved from the database,
+        and related text fields and combo boxes are prefilled with the data and become uneditable*/
         if (hotel != null) {
             this.fld_name.setText(hotel.getHotel_name());
             this.fld_city.setText(hotel.getCity());
@@ -70,7 +74,8 @@ public class HotelView extends Layout {
             this.fld_phone.setText(hotel.getPhone());
             this.fld_address.setText(hotel.getAddress());
 
-            // Retrieve amenities and pension types associated with the hotel
+            //CRITERIA 11 - 12 (Season and pension management)
+            // Retrieve amenities and pension types associated with the hotel from the database
             List<Object[]> amenitiesData = hotelManager.findAllAmenities(hotel.getHotel_id());
             List<Object[]> pensionTypesData = hotelManager.findAllPensions(hotel.getHotel_id());
             List<LocalDate[]> preselectSeasons = hotelManager.findEnteredSeasons(hotel.getHotel_id());
@@ -87,9 +92,11 @@ public class HotelView extends Layout {
 
             this.btn_hotel_submit.addActionListener(e -> {
                 if (Utility.isFieldListEmpty(new JTextField[]{this.fld_address, this.fld_phone, this.fld_email, this.fld_name, this.fld_city, this.fld_district})) {
+                    //CRITERIA 25
                     Utility.showMessage("fill");
                 } else {
                     boolean result = false;
+                    //CRITERIA 10 - All the necessary info for adding a hotel is saved here
                     this.hotel.setHotel_name(fld_name.getText());
                     this.hotel.setCity(fld_city.getText());
                     this.hotel.setDistrict(fld_district.getText());
@@ -109,9 +116,11 @@ public class HotelView extends Layout {
                     }
 
                     if (result) {
+                        //CRITERIA 24
                         Utility.showMessage("done");
                         dispose();
                     } else {
+                        //CRITERIA 25
                         Utility.showMessage("error");
                     }
                 }
@@ -148,6 +157,7 @@ public class HotelView extends Layout {
         return selectedAmenities;
     }
 
+    //CRITERIA 12 - This method finds if the selected hotel has pensions entered
     private List<String> getSelectedPensions() {
         List<String> selectedPensions = new ArrayList<>();
         if (cbox_ultraallinclusive.isSelected()) {
@@ -175,6 +185,7 @@ public class HotelView extends Layout {
         return selectedPensions;
     }
 
+    //CRITERIA 11 - This method finds if the selected hotel has seasons entered
     private List<Date[]> getEnteredSeasons() {
         List<Date[]> enteredSeasons = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // adjust the date format as per your requirements

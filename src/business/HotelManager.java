@@ -18,6 +18,7 @@ public class HotelManager {
         this.hotelDao = new HotelDao();
     }
 
+    //CRITERIA 1
     public List<Hotel> findAll() {
         return this.hotelDao.findAll();
     }
@@ -44,6 +45,7 @@ public class HotelManager {
 
     public boolean save(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
         if (this.getById(hotel.getHotel_id()) != null) {
+            //CRITERIA 25
             Utility.showMessage("error");
             return false;
         }
@@ -52,6 +54,7 @@ public class HotelManager {
 
     public boolean update(Hotel hotel, List<String> selectedAmenities, List<String> selectedPensions, List<Date[]> enteredSeasons) {
         if (this.getById(hotel.getHotel_id()) == null) {
+            //CRITERIA 25
             Utility.showMessage("Model with " + hotel.getHotel_id() + " could not be found.");
             return false;
         }
@@ -60,6 +63,7 @@ public class HotelManager {
 
     public boolean delete(int id) {
         if (this.getById(id) == null) {
+            //CRITERIA 25
             Utility.showMessage("Hotel with ID " + id + " could not be found.");
             return false;
         }
