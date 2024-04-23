@@ -1,8 +1,6 @@
 package business;
 
-import core.Utility;
 import dao.RoomDao;
-import entity.Hotel;
 import entity.Room;
 
 import java.time.LocalDate;

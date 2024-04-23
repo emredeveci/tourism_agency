@@ -1,11 +1,9 @@
 package view;
 
 import business.UserManager;
-import com.sun.deploy.ref.Helpers;
 import core.Utility;
 import entity.User;
 
-import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
@@ -103,6 +101,7 @@ public class AdminView extends Layout {
         tableRowSelect(this.tbl_user);
         this.user_menu = new JPopupMenu();
 
+        //CRITERIA 7
         this.user_menu.add("Add").addActionListener(e -> {
             UserView userView = new UserView(new User(), "add");
             userView.addWindowListener(new WindowAdapter() {
@@ -113,6 +112,7 @@ public class AdminView extends Layout {
             });
         });
 
+        //CRITERIA 7
         this.user_menu.add("Update").addActionListener(e -> {
             int selectedUserId = this.getTableSelectedRow(tbl_user, 0);
             UserView userView = new UserView(this.userManager.getById(selectedUserId), "update");
@@ -124,6 +124,7 @@ public class AdminView extends Layout {
             });
         });
 
+        //CRITERIA 7
         this.user_menu.add("Remove").addActionListener(e -> {
             if (Utility.confirm("confirm")) {
                 int selectUserId = this.getTableSelectedRow(tbl_user, 0);

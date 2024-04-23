@@ -503,7 +503,6 @@ public class AgentView extends Layout {
                         int selectedRow = tbl_reservations.getSelectedRow();
                         if (selectedRow != -1) {
                             int selectedReservationId = Integer.parseInt(tbl_reservations.getValueAt(selectedRow, 0).toString());
-                            System.out.println(selectedReservationId);
                             loadReservationDetailsTable(null, selectedReservationId);
                             loadGuestDetailsTable(null, selectedReservationId);
                         }

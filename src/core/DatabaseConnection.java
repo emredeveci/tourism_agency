@@ -1,25 +1,46 @@
 package core;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseConnection {
 
     //CRITERIA 6 (with Singleton Pattern)
     //database connection parameters
-    private static final String URL = "jdbc:postgresql://localhost:5432/tourismagency";
-    private static final String USERNAME = "postgres";
-    private static final String PASSWORD = "deveci";
 
-    //singleton instance
+    private static final String PROPERTIES_FILE_PATH = "database.properties";
+
+    // Singleton instance
     private static DatabaseConnection instance;
 
-    //private constructor to prevent instantiation
+    // Database connection parameters
+    private String url;
+    private String username;
+    private String password;
+
+    // Private constructor to prevent instantiation
     private DatabaseConnection() {
+        loadProperties();
     }
 
-    //method to get the singleton instance, also ensuring thread safety
+    // Method to load properties from file
+    private void loadProperties() {
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream(PROPERTIES_FILE_PATH)) {
+            properties.load(fis);
+            url = properties.getProperty("db.url");
+            username = properties.getProperty("db.username");
+            password = properties.getProperty("db.password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to get the singleton instance, also ensuring thread safety
     public static synchronized DatabaseConnection getInstance() {
         if (instance == null) {
             instance = new DatabaseConnection();
@@ -27,12 +48,12 @@ public class DatabaseConnection {
         return instance;
     }
 
-    //method to get database connection
+    // Method to get database connection
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        return DriverManager.getConnection(url, username, password);
     }
 
-    //method to close database connection
+    // Method to close database connection
     public void closeConnection(Connection connection) {
         if (connection != null) {
             try {
@@ -43,3 +64,4 @@ public class DatabaseConnection {
         }
     }
 }
+

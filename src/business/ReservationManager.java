@@ -1,14 +1,11 @@
 package business;
 
-import core.Utility;
 import dao.ReservationDao;
-import entity.Hotel;
 import entity.Reservation;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ReservationManager {

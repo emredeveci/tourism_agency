@@ -1,7 +1,6 @@
 package dao;
 
 import core.DatabaseConnection;
-import entity.Hotel;
 import entity.Reservation;
 
 import java.math.BigDecimal;

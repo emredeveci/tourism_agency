@@ -3,7 +3,6 @@ package business;
 import core.Utility;
 import dao.HotelDao;
 import entity.Hotel;
-import entity.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

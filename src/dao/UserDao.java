@@ -2,7 +2,6 @@ package dao;
 
 import entity.User;
 import core.DatabaseConnection;
-import sun.security.krb5.internal.EncAPRepPart;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
