@@ -172,6 +172,7 @@ public class ReservationView extends Layout {
         });
     }
 
+    //During a reservation, related hotel amenities are retrieved from the database and shown on the screen
     private void preselectAmenityCheckboxes(List<Object[]> amenitiesData) {
         if (amenitiesData != null) {
             for (Object[] rowData : amenitiesData) {
@@ -203,6 +204,7 @@ public class ReservationView extends Layout {
         }
     }
 
+    //During a reservation, room features are retrieved from the database and shown on the screen
     private void preselectFeatureCheckboxes(List<Object[]> roomFeatures) {
         if (roomFeatures != null) {
             for (Object[] rowData : roomFeatures) {
@@ -228,6 +230,7 @@ public class ReservationView extends Layout {
         }
     }
 
+    //During a reservation, related hotel information is retrieved from the database and shown on the screen
     private void preFillHotelInformation(List<Object[]> hotelInfoList) {
         if (!hotelInfoList.isEmpty()) {
             Object[] rowData = hotelInfoList.get(0); // Assuming there is only one hotel info in the list
@@ -246,6 +249,7 @@ public class ReservationView extends Layout {
         }
     }
 
+    //During a reservation, related room details is retrieved from the database and shown on the screen
     private void prefillRoomInformation(List<Object[]> roomInfoList) {
         if (!roomInfoList.isEmpty()) {
             Object[] rowData = roomInfoList.get(0); // Assuming there is only one hotel info in the list
@@ -299,6 +303,10 @@ public class ReservationView extends Layout {
                     startDate = LocalDate.parse(startDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     endDate = LocalDate.parse(endDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     dayCount = (int) ChronoUnit.DAYS.between(startDate, endDate);
+                    if (dayCount < 1) {
+                        Utility.showMessage("The length of stay has to at least be 1 day.");
+                        return false;
+                    }
                     childCost = childPrice.multiply(BigDecimal.valueOf(childCount)).multiply(BigDecimal.valueOf(dayCount));
                     adultCost = adultPrice.multiply(BigDecimal.valueOf(adultCount)).multiply(BigDecimal.valueOf(dayCount));
                     totalCost = adultCost.add(childCost);

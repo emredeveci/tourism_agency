@@ -16,13 +16,13 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="72354" class="javax.swing.JLabel">
+          <component id="72354" class="javax.swing.JLabel" binding="lbl_hotels_title">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <font size="16" style="1"/>
-              <text value="Add / Update Hotels"/>
+              <text value="Add Hotel"/>
             </properties>
           </component>
           <grid id="9cbb3" binding="pnl_body1" layout-manager="GridLayoutManager" row-count="5" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

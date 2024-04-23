@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class HotelView extends Layout {
     //CRITERIA 1
@@ -48,19 +49,26 @@ public class HotelView extends Layout {
     private JTextField fld_season_one_end;
     private JTextField fld_seasontwo_start;
     private JTextField fld_seasontwo_end;
+    private JLabel lbl_hotels_title;
 
 
     private Hotel hotel;
     private HotelManager hotelManager;
     Integer[] stars = {5, 4, 3, 2, 1};
 
-    public HotelView(Hotel hotel) {
+    public HotelView(Hotel hotel, String purpose) {
         this.hotel = hotel;
         this.hotelManager = new HotelManager();
         this.add(container);
         this.guiInitialize(1000, 900);
 
+
         this.cmb_stars.setModel(new DefaultComboBoxModel<>(stars));
+        if (Objects.equals(purpose, "add")) {
+            this.lbl_hotels_title.setText("Add Hotel");
+        } else if (Objects.equals(purpose, "update")) {
+            this.lbl_hotels_title.setText("Update Hotel");
+        }
 
         /* If a hotel is picked before this window opens,
         all the necessary hotel information is retrieved from the database,
@@ -226,6 +234,7 @@ public class HotelView extends Layout {
         return enteredSeasons;
     }
 
+    //During an update, previously entered amenities are retrieved from the database and shown on the screen
     private void preselectAmenityCheckboxes(List<Object[]> amenitiesData) {
         if (amenitiesData != null) {
             for (Object[] rowData : amenitiesData) {
@@ -257,6 +266,7 @@ public class HotelView extends Layout {
         }
     }
 
+    //During an update, previously entered pension types are retrieved from the database and shown on the screen
     private void preselectPensionTypeCheckboxes(List<Object[]> pensionTypesData) {
         if (pensionTypesData != null) {
             for (Object[] rowData : pensionTypesData) {
@@ -284,6 +294,7 @@ public class HotelView extends Layout {
         }
     }
 
+    //During an update, previously entered season information is retrieved from the database and shown on the screen
     private void preselectSeasonFields(List<LocalDate[]> preselectSeasons) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

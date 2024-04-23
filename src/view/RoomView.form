@@ -129,7 +129,7 @@
             </constraints>
             <properties>
               <font style="1"/>
-              <text value="Room Size"/>
+              <text value="Room Size (m²)"/>
             </properties>
           </component>
           <component id="70145" class="javax.swing.JTextField" binding="fld_rooms_stock">

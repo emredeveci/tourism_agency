@@ -187,7 +187,7 @@ public class RoomDao {
 
         // Add WHERE clause for filtering based on search criteria
         queryBuilder.append("WHERE 1=1 "); // Dummy condition to start WHERE clause
-
+        queryBuilder.append("AND ri.quantity_available >= 1 ");
 
         if (hotelName != null && !hotelName.isEmpty()) {
             queryBuilder.append("AND h.hotel_name LIKE ? ");

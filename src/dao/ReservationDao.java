@@ -81,7 +81,7 @@ public class ReservationDao {
     }
 
     public boolean deleteReservation(int reservationId) {
-        String query = "DELETE FROM Reservations WHERE reservation_id = ?";
+        String query = "DELETE FROM reservations WHERE reservation_id = ?";
         try {
             PreparedStatement pr = databaseConnection.getConnection().prepareStatement(query);
             pr.setInt(1, reservationId);

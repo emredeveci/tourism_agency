@@ -45,7 +45,7 @@ public class UserView extends Layout {
                 Utility.showMessage("fill");
             } else {
                 boolean result = false;
-                this.user.setUsername(fld_username.getText());
+                this.user.setUsername(fld_username.getText().toLowerCase());
                 this.user.setPassword(fld_password.getText());
                 this.user.setRole((String) cmb_user_role.getSelectedItem());
 

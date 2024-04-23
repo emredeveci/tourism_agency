@@ -50,7 +50,7 @@ public class AdminView extends Layout {
 
         String name = this.user.getUsername();
         String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
-        this.lbl_greeting.setText("User: " + capitalizedName);
+        this.lbl_greeting.setText("Admin: " + capitalizedName);
 
         loadComponent();
 

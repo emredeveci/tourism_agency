@@ -122,13 +122,14 @@ public class AgentView extends Layout {
 
         String name = this.user.getUsername();
         String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
-        this.lbl_greeting.setText("User: " + capitalizedName);
+        this.lbl_greeting.setText("Agent: " + capitalizedName);
 
         loadComponent();
 
         //Fill all the necessary tables with data from the database
+
         //Tab: Hotels
-        loadHotelTable(null);
+        loadHotelTable(null, "start");
 
         //Tab: Rooms
         loadRoomsTable(null, "start");
@@ -138,7 +139,7 @@ public class AgentView extends Layout {
         final Integer[] selectedCityId = {-1};
 
         //Tab: Reservations
-        loadReservationsTable();
+        loadReservationsTable("start");
 
         cmb_rooms_hotel.addActionListener(new ActionListener() {
             @Override
@@ -251,6 +252,7 @@ public class AgentView extends Layout {
 
         if (Objects.equals(purpose, "start")) {
 
+            //CRITERIA 13
             this.room_menu.add("Add").addActionListener(e -> {
                 RoomView roomView = new RoomView();
                 roomView.addWindowListener(new WindowAdapter() {
@@ -264,19 +266,25 @@ public class AgentView extends Layout {
             });
 
             this.room_menu.add("Reserve").addActionListener(e -> {
+                int stock = 0;
                 int selectedRow = tbl_rooms.getSelectedRow();
                 int reservationId = 0;
                 if (selectedRow != -1) {
                     reservationId = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 0).toString());
+                    stock = Integer.parseInt(tbl_rooms.getValueAt(selectedRow, 9).toString());
                 }
-                ReservationView reservationView = new ReservationView(reservationId, "reserve", null);
-                reservationView.addWindowListener(new WindowAdapter() {
-                    @Override
-                    public void windowClosed(WindowEvent e) {
-                        loadReservationsTable();
-                        loadRoomsTable(null, "update");
-                    }
-                });
+                if (stock >= 1) {
+                    ReservationView reservationView = new ReservationView(reservationId, "reserve", null);
+                    reservationView.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosed(WindowEvent e) {
+                            loadReservationsTable(null);
+                            loadRoomsTable(null, "update");
+                        }
+                    });
+                } else {
+                    Utility.showMessage("no stock");
+                }
             });
 
             //CRITERIA 13
@@ -297,19 +305,6 @@ public class AgentView extends Layout {
                     int selectInventoryId = this.getTableSelectedRow(tbl_rooms, 0);
                     if (this.roomManager.delete(selectInventoryId)) {
                         loadRoomsTable(null, "update");
-                        DefaultTableModel model = (DefaultTableModel) tbl_rooms.getModel();
-                        int selectedRow = tbl_rooms.getSelectedRow(); // Get the selected row index before removing
-                        model.removeRow(selectedRow);
-                        // Ensure that another row is selected to trigger the valueChanged event
-                        if (model.getRowCount() > 0) {
-                            // If there are rows remaining, select the next row
-                            if (selectedRow < model.getRowCount()) {
-                                tbl_rooms.setRowSelectionInterval(selectedRow, selectedRow);
-                            } else {
-                                // If the last row was deleted, select the previous row
-                                tbl_rooms.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-                            }
-                        }
                         populateHotelComboBoxForRoomSearch();
                         populateCityComboBoxForRoomSearch(null);
                         //CRITERIA 24
@@ -352,14 +347,14 @@ public class AgentView extends Layout {
         });
     }
 
-    private void loadHotelTable(List<Object[]> hotelList) {
-        loadHotelTable(hotelList, null);
+    private void loadHotelTable(List<Object[]> hotelList, String purpose) {
+        loadHotelTable(hotelList, null, "start");
     }
 
     //CRITERIA 10 - Employees can accomplish all the required 'hotel related' tasks in the project
-    private void loadHotelTable(List<Object[]> hotelList, Integer selectedHotelId) {
+    private void loadHotelTable(List<Object[]> hotelList, Integer selectedHotelId, String purpose) {
         tableRowSelect(this.tbl_hotels);
-        this.hotel_menu = new JPopupMenu();
+
 
         col_hotel = new Object[]{"ID", "Hotel", "City", "District", "Star", "E-mail", "Phone", "Address"};
         if (hotelList == null) {
@@ -368,83 +363,76 @@ public class AgentView extends Layout {
 
         createTable(this.tmdl_hotels, this.tbl_hotels, col_hotel, hotelList);
 
-        //CRITERIA 10 - Employees can add/update/delete hotels with all the required specifications in the project
-        this.hotel_menu.add("Add").addActionListener(e -> {
-            HotelView userView = new HotelView(new Hotel());
-            userView.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
-                    loadHotelTable(null, selectedHotelId);
-                    loadPensionTable(null, selectedHotelId);
-                    loadAmenitiesTable(null, selectedHotelId);
-                    loadDiscountPeriodsTable(null, selectedHotelId);
-                    populateHotelComboBoxForRoomSearch();
-                    populateCityComboBoxForRoomSearch(null);
-                }
-            });
-        });
+        this.hotel_menu = new JPopupMenu();
+        if (Objects.equals(purpose, "start")) {
 
-        this.hotel_menu.add("Update").addActionListener(e -> {
-            HotelView hotelView = new HotelView(this.hotelManager.getById(this.getTableSelectedRow(tbl_hotels, 0)));
-            hotelView.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
-                    loadHotelTable(null, selectedHotelId);
-                    loadPensionTable(null, selectedHotelId);
-                    loadAmenitiesTable(null, selectedHotelId);
-                    loadDiscountPeriodsTable(null, selectedHotelId);
-                }
-            });
-        });
-
-        this.hotel_menu.add("Delete").addActionListener(e -> {
-            if (Utility.confirm("confirm")) {
-                int selectUserId = this.getTableSelectedRow(tbl_hotels, 0);
-                if (this.hotelManager.delete(selectUserId)) {
-                    DefaultTableModel model = (DefaultTableModel) tbl_hotels.getModel();
-                    int selectedRow = tbl_hotels.getSelectedRow(); // Get the selected row index before removing
-                    model.removeRow(selectedRow);
-                    // Ensure that another row is selected to trigger the valueChanged event
-                    if (model.getRowCount() > 0) {
-                        // If there are rows remaining, select the next row
-                        if (selectedRow < model.getRowCount()) {
-                            tbl_hotels.setRowSelectionInterval(selectedRow, selectedRow);
-                        } else {
-                            // If the last row was deleted, select the previous row
-                            tbl_hotels.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-                        }
+            //CRITERIA 10 - Employees can add/update/delete hotels with all the required specifications in the project
+            this.hotel_menu.add("Add").addActionListener(e -> {
+                HotelView userView = new HotelView(new Hotel(), "add");
+                userView.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
+                        loadHotelTable(null, selectedHotelId, null);
+                        loadPensionTable(null, selectedHotelId);
+                        loadAmenitiesTable(null, selectedHotelId);
+                        loadDiscountPeriodsTable(null, selectedHotelId);
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                     }
-                    //CRITERIA 24
-                    Utility.showMessage("done");
-                } else {
-                    //CRITERIA 25
-                    Utility.showMessage("error");
-                }
-            }
-        });
+                });
+            });
 
-        this.tbl_hotels.setComponentPopupMenu(hotel_menu);
-
-        tbl_hotels.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int selectedRow = tbl_hotels.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int selectedHotelId = Integer.parseInt(tbl_hotels.getValueAt(selectedRow, 0).toString());
+            this.hotel_menu.add("Update").addActionListener(e -> {
+                HotelView hotelView = new HotelView(this.hotelManager.getById(this.getTableSelectedRow(tbl_hotels, 0)), "update");
+                hotelView.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        int selectedHotelId = getTableSelectedRow(tbl_hotels, 0);
+                        loadHotelTable(null, selectedHotelId, null);
                         loadPensionTable(null, selectedHotelId);
                         loadAmenitiesTable(null, selectedHotelId);
                         loadDiscountPeriodsTable(null, selectedHotelId);
                     }
+                });
+            });
+
+            this.hotel_menu.add("Delete").addActionListener(e -> {
+                if (Utility.confirm("confirm")) {
+                    int selectUserId = this.getTableSelectedRow(tbl_hotels, 0);
+                    if (this.hotelManager.delete(selectUserId)) {
+                        loadHotelTable(null, null, null);
+                        //CRITERIA 24
+                        Utility.showMessage("done");
+                    } else {
+                        //CRITERIA 25
+                        Utility.showMessage("error");
+                    }
                 }
-            }
-        });
+            });
+
+            this.tbl_hotels.setComponentPopupMenu(hotel_menu);
+
+            tbl_hotels.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if (!e.getValueIsAdjusting()) {
+                        int selectedRow = tbl_hotels.getSelectedRow();
+                        if (selectedRow != -1) {
+                            int selectedHotelId = Integer.parseInt(tbl_hotels.getValueAt(selectedRow, 0).toString());
+                            loadPensionTable(null, selectedHotelId);
+                            loadAmenitiesTable(null, selectedHotelId);
+                            loadDiscountPeriodsTable(null, selectedHotelId);
+                        }
+                    }
+                }
+            });
+        }
+
     }
 
     //CRITERIA 20 - Table for all the existing reservations
-    private void loadReservationsTable() {
+    private void loadReservationsTable(String purpose) {
         tableRowSelect(this.tbl_reservations);
 
         col_reservations = new Object[]{"Reservation ID", "Hotel", "City", "Start Date", "End Date", "Total Cost"};
@@ -455,66 +443,70 @@ public class AgentView extends Layout {
 
         this.reservation_menu = new JPopupMenu();
 
-        //CRITERIA 22 - Delete Reservation
-        this.reservation_menu.add("Delete").addActionListener(e -> {
-            if (Utility.confirm("confirm")) {
+        if (Objects.equals(purpose, "start")) {
+
+            //CRITERIA 21 - Update Reservation
+            this.reservation_menu.add("Update").addActionListener(e -> {
                 int selectedReservationId = this.getTableSelectedRow(tbl_reservations, 0);
                 int selectedInventoryId = this.reservationManager.findInventoryId(selectedReservationId);
-                //CRITERIA 23 - Increase room stock after reservation deletion
-                if (this.reservationManager.deleteReservation(selectedReservationId) && this.reservationManager.adjustInventoryAfterRemove(selectedInventoryId)) {
-                    DefaultTableModel model = (DefaultTableModel) tbl_reservations.getModel();
-                    int selectedRow = tbl_reservations.getSelectedRow(); // Get the selected row index before removing
-                    model.removeRow(selectedRow);
-                    // Ensure that another row is selected to trigger the valueChanged event
-                    if (model.getRowCount() > 0) {
-                        // If there are rows remaining, select the next row
-                        if (selectedRow < model.getRowCount()) {
-                            tbl_reservations.setRowSelectionInterval(selectedRow, selectedRow);
-                        } else {
-                            // If the last row was deleted, select the previous row
-                            tbl_reservations.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
-                        }
+                ReservationView reservationView = new ReservationView(selectedInventoryId, "update", this.reservationManager.findByReservationId(selectedReservationId));
+                reservationView.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        loadReservationsTable(null);
+                        loadRoomsTable(null, "update");
                     }
-                    //CRITERIA 24
-                    Utility.showMessage("done");
-                    loadReservationsTable();
-                    loadRoomsTable(null, "update");
-                } else {
-                    //CRITERIA 25
-                    Utility.showMessage("error");
-                }
-            }
-        });
+                });
+            });
 
-        //CRITERIA 21 - Update Reservation
-        this.reservation_menu.add("Update").addActionListener(e -> {
-            int selectedReservationId = this.getTableSelectedRow(tbl_reservations, 0);
-            int selectedInventoryId = this.reservationManager.findInventoryId(selectedReservationId);
-            ReservationView reservationView = new ReservationView(selectedInventoryId, "update", this.reservationManager.findByReservationId(selectedReservationId));
-            reservationView.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    loadReservationsTable();
-                    loadRoomsTable(null, "update");
+            //CRITERIA 22 - Delete Reservation
+            this.reservation_menu.add("Delete").addActionListener(e -> {
+                if (Utility.confirm("confirm")) {
+                    int selectedReservationId = this.getTableSelectedRow(tbl_reservations, 0);
+                    int selectedInventoryId = this.reservationManager.findInventoryId(selectedReservationId);
+                    //CRITERIA 23 - Increase room stock after reservation deletion
+                    if (this.reservationManager.deleteReservation(selectedReservationId) && this.reservationManager.adjustInventoryAfterRemove(selectedInventoryId)) {
+                        DefaultTableModel model = (DefaultTableModel) tbl_reservations.getModel();
+                        int selectedRow = tbl_reservations.getSelectedRow(); // Get the selected row index before removing
+                        model.removeRow(selectedRow);
+                        // Ensure that another row is selected to trigger the valueChanged event
+                        if (model.getRowCount() > 0) {
+                            // If there are rows remaining, select the next row
+                            if (selectedRow < model.getRowCount()) {
+                                tbl_reservations.setRowSelectionInterval(selectedRow, selectedRow);
+                            } else {
+                                // If the last row was deleted, select the previous row
+                                tbl_reservations.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
+                            }
+                        }
+                        //CRITERIA 24
+                        Utility.showMessage("done");
+                        loadReservationsTable(null);
+                        loadRoomsTable(null, "update");
+                    } else {
+                        //CRITERIA 25
+                        Utility.showMessage("error");
+                    }
                 }
             });
-        });
 
-        this.tbl_reservations.setComponentPopupMenu(reservation_menu);
+            this.tbl_reservations.setComponentPopupMenu(reservation_menu);
 
-        tbl_reservations.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int selectedRow = tbl_reservations.getSelectedRow();
-                    if (selectedRow != -1) {
-                        int selectedReservationId = Integer.parseInt(tbl_reservations.getValueAt(selectedRow, 0).toString());
-                        loadReservationDetailsTable(null, selectedReservationId);
-                        loadGuestDetailsTable(null, selectedReservationId);
+            tbl_reservations.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                @Override
+                public void valueChanged(ListSelectionEvent e) {
+                    if (!e.getValueIsAdjusting()) {
+                        int selectedRow = tbl_reservations.getSelectedRow();
+                        if (selectedRow != -1) {
+                            int selectedReservationId = Integer.parseInt(tbl_reservations.getValueAt(selectedRow, 0).toString());
+                            System.out.println(selectedReservationId);
+                            loadReservationDetailsTable(null, selectedReservationId);
+                            loadGuestDetailsTable(null, selectedReservationId);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     private void loadReservationDetailsTable(List<Object[]> reservationsDetails, int selectedRow) {
@@ -558,7 +550,7 @@ public class AgentView extends Layout {
     }
 
     private void loadRoomDetailsTable(List<Object> roomDetailsList, int selectedInventoryId) {
-        col_room_details = new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m\u00B2)"};
+        col_room_details = new Object[]{"Inventory ID", "Bed Capacity", "Room Size (m²)"};
         if (roomDetailsList == null) {
             List<Object[]> roomDetails = this.roomManager.findAllRoomDetails(selectedInventoryId);
             createTable(this.tmdl_room_details, this.tbl_room_details, col_room_details, roomDetails);

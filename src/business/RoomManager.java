@@ -20,11 +20,6 @@ public class RoomManager {
 
     //CRITERIA 1
     public boolean delete(int inventoryId) {
-        if (this.getByInventoryId(inventoryId) == null) {
-            //CRITERIA 25
-            Utility.showMessage("Room with ID " + inventoryId + " could not be found.");
-            return false;
-        }
         return this.roomDao.delete(inventoryId);
     }
 

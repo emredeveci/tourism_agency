@@ -11,12 +11,13 @@ public class Layout extends JFrame {
 
     public void guiInitialize(int width, int height) {
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setTitle("Tourism Agency");
+        this.setTitle("Deveci Tourism Agency");
         this.setSize(width, height);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
+    //the method that fills tables with the data received from the database
     public void createTable(DefaultTableModel model, JTable table, Object[] columns, List<Object[]> rows) {
         model.setColumnIdentifiers(columns);
         table.setModel(model);

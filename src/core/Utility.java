@@ -17,7 +17,7 @@ public class Utility {
         }
     }
 
-
+    //group of pre-made notification messages
     public static void showMessage(String str) {
         String msg;
         String title;
@@ -57,6 +57,14 @@ public class Utility {
             case "incomplete search parameters":
                 msg = "You need to enter at least one of these: hotel, city, or start AND end dates.";
                 title = "Date error";
+                break;
+            case "The length of stay has to at least be 1 day":
+                msg = "The length of stay has to at least be 1 day.";
+                title = "Date error";
+                break;
+            case "no stock":
+                msg = "There is not enough stock for this room.";
+                title = "Not enough stock";
                 break;
             default:
                 msg = str;
