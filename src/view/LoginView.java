@@ -48,7 +48,7 @@ public class LoginView extends Layout {
             }
         });
 
-        btn_login.addActionListener(e -> handleLogin());
+//        btn_login.addActionListener(e -> handleLogin());
     }
 
     //Depending on the user role, a different window opens
@@ -61,10 +61,7 @@ public class LoginView extends Layout {
         } else {
             User loginUser = this.userManager.findByLogin(this.fld_username.getText(), this.fld_password.getText());
             //CRITERIA 9
-            if (loginUser == null) {
-                //CRITERIA 9
-                Utility.showMessage("notFound");
-            } else {
+            if (loginUser != null) {
                 if (Objects.equals(loginUser.getRole(), "admin")) {
                     AdminView adminView = new AdminView(loginUser);
                     dispose();
@@ -72,6 +69,9 @@ public class LoginView extends Layout {
                     AgentView agentView = new AgentView(loginUser);
                     dispose();
                 }
+            } else {
+                //CRITERIA 9
+                Utility.showMessage("notFound");
             }
         }
     }

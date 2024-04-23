@@ -393,6 +393,8 @@ public class AgentView extends Layout {
                         loadPensionTable(null, selectedHotelId);
                         loadAmenitiesTable(null, selectedHotelId);
                         loadDiscountPeriodsTable(null, selectedHotelId);
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                     }
                 });
             });
@@ -402,6 +404,8 @@ public class AgentView extends Layout {
                     int selectUserId = this.getTableSelectedRow(tbl_hotels, 0);
                     if (this.hotelManager.delete(selectUserId)) {
                         loadHotelTable(null, null, null);
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                         //CRITERIA 24
                         Utility.showMessage("done");
                     } else {
