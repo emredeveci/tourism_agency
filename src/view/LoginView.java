@@ -25,7 +25,7 @@ public class LoginView extends Layout {
     public LoginView() {
         this.userManager = new UserManager();
         this.add(container);
-        this.guiInitialize(300, 300);
+        this.guiInitialize(400, 350);
 
         btn_login.addActionListener(e -> handleLogin());
 

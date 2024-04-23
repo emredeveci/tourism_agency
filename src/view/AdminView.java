@@ -31,7 +31,7 @@ public class AdminView extends Layout {
     private DefaultTableModel tmdl_user = new DefaultTableModel();
     private JPopupMenu user_menu;
     private Object[] col_user;
-    String[] userRoles = {"admin", "agent"};
+    String[] userRoles = {"", "admin", "agent"};
     private JComboBox<String> cmb_user_role;
 
     private User user;
@@ -47,7 +47,9 @@ public class AdminView extends Layout {
             dispose();
         }
 
-        this.lbl_greeting.setText("Welcome, " + this.user.getUsername());
+        String name = this.user.getUsername();
+        String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        this.lbl_greeting.setText("User: " + capitalizedName);
 
         loadComponent();
 
@@ -79,11 +81,16 @@ public class AdminView extends Layout {
         this.cmb_user_role.setModel(new DefaultComboBoxModel<>(userRoles));
 
         btn_user_search.addActionListener(e -> {
-            List<User> userList = this.userManager.searchForUsers(Objects.requireNonNull(cmb_user_role.getSelectedItem()).toString());
-            List<Object[]> userRow = this.userManager.getForTable(this.col_user.length, userList);
-            loadUserTable(userRow);
+            if(cmb_user_role.getSelectedItem() != ""){
+                List<User> userList = this.userManager.searchForUsers(Objects.requireNonNull(cmb_user_role.getSelectedItem()).toString());
+                List<Object[]> userRow = this.userManager.getForTable(this.col_user.length, userList);
+                loadUserTable(userRow);
+            } else {
+                Utility.showMessage("pick a role");
+            }
         });
         btn_user_clear.addActionListener(e -> {
+            cmb_user_role.setSelectedItem("");
             loadUserTable(null);
         });
 
@@ -94,7 +101,7 @@ public class AdminView extends Layout {
         this.user_menu = new JPopupMenu();
 
         this.user_menu.add("Add").addActionListener(e -> {
-            UserView userView = new UserView(new User());
+            UserView userView = new UserView(new User(), "add");
             userView.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
@@ -105,7 +112,7 @@ public class AdminView extends Layout {
 
         this.user_menu.add("Update").addActionListener(e -> {
             int selectedUserId = this.getTableSelectedRow(tbl_user, 0);
-            UserView userView = new UserView(this.userManager.getById(selectedUserId));
+            UserView userView = new UserView(this.userManager.getById(selectedUserId), "update");
             userView.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {

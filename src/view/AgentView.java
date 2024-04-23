@@ -118,7 +118,9 @@ public class AgentView extends Layout {
         tbl_reservation_details.setModel(tmdl_reservation_details);
         tbl_guest_details.setModel(tmdl_contact_details);
 
-        this.lbl_greeting.setText("Welcome, " + this.user.getUsername());
+        String name = this.user.getUsername();
+        String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        this.lbl_greeting.setText("User: " + capitalizedName);
 
         loadComponent();
 
@@ -220,6 +222,7 @@ public class AgentView extends Layout {
     private void loadRoomsTable(List<Room> roomList, String purpose) {
         tableRowSelect(this.tbl_rooms);
         List<Object[]> rooms;
+
         col_rooms = new Object[]{"Inventory ID", "Hotel", "City", "Room", "Pension", "Season", "Adult Price", "Child Price", "Stock"};
         if (roomList == null) {
             rooms = this.roomManager.getForTable(col_rooms.length, this.roomManager.findAll());
@@ -239,6 +242,8 @@ public class AgentView extends Layout {
                     @Override
                     public void windowClosed(WindowEvent e) {
                         loadRoomsTable(null, "update");
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                     }
                 });
             });
@@ -265,6 +270,8 @@ public class AgentView extends Layout {
                     @Override
                     public void windowClosed(WindowEvent e) {
                         loadRoomsTable(null, "update");
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                     }
                 });
             });
@@ -287,6 +294,8 @@ public class AgentView extends Layout {
                                 tbl_rooms.setRowSelectionInterval(selectedRow - 1, selectedRow - 1);
                             }
                         }
+                        populateHotelComboBoxForRoomSearch();
+                        populateCityComboBoxForRoomSearch(null);
                         Utility.showMessage("done");
                     } else {
                         Utility.showMessage("error");
@@ -348,6 +357,8 @@ public class AgentView extends Layout {
                     loadPensionTable(null, selectedHotelId);
                     loadAmenitiesTable(null, selectedHotelId);
                     loadDiscountPeriodsTable(null, selectedHotelId);
+                    populateHotelComboBoxForRoomSearch();
+                    populateCityComboBoxForRoomSearch(null);
                 }
             });
         });
@@ -551,6 +562,4 @@ public class AgentView extends Layout {
         }
         cmb_rooms_city.setModel(model);
     }
-
-
 }

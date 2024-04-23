@@ -116,6 +116,7 @@
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font/>
                       <text value="Pension Types"/>
                     </properties>
                   </component>
@@ -124,6 +125,7 @@
                       <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font/>
                       <text value="Discount Periods"/>
                     </properties>
                   </component>
@@ -132,6 +134,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font/>
                       <text value="Amenities"/>
                     </properties>
                   </component>
@@ -393,7 +396,8 @@
                       <component id="94df4" class="javax.swing.JTable" binding="tbl_reservation_details">
                         <constraints/>
                         <properties>
-                          <autoResizeMode value="2"/>
+                          <autoResizeMode value="4"/>
+                          <fillsViewportHeight value="false"/>
                         </properties>
                       </component>
                     </children>
@@ -416,7 +420,7 @@
                           <component id="4c4b0" class="javax.swing.JTable" binding="tbl_guest_details">
                             <constraints/>
                             <properties>
-                              <autoResizeMode value="2"/>
+                              <autoResizeMode value="4"/>
                             </properties>
                           </component>
                         </children>

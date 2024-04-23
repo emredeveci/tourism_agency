@@ -57,7 +57,7 @@ public class HotelView extends Layout {
         this.hotel = hotel;
         this.hotelManager = new HotelManager();
         this.add(container);
-        this.guiInitialize(1000, 700);
+        this.guiInitialize(1000, 900);
 
         this.cmb_stars.setModel(new DefaultComboBoxModel<>(stars));
 

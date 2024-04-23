@@ -104,7 +104,7 @@ public class ReservationView extends Layout {
         preFillHotelInformation(hotelInfoList);
         prefillRoomInformation(roomInfoList);
 
-        if(reservation != null){
+        if (reservation != null) {
             LocalDate startDate = reservation.getStartDate();
             LocalDate endDate = reservation.getEndDate();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -131,7 +131,12 @@ public class ReservationView extends Layout {
                 String guestIdNo = fld_reservations_guestId.getText().trim();
                 String guestEmail = fld_reservations_email.getText().trim();
 
-                if(reservation != null && recalculate()){
+                if (adultCount + childCount > Integer.parseInt(fld_reservation_beds.getText())) {
+                    Utility.showMessage("bed limit");
+                    return;
+                }
+
+                if (reservation != null && recalculate()) {
                     updated = this.reservationManager.update(reservation.getReservationId(), childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
                 } else {
                     saved = this.reservationManager.save(inventoryId, hotelId, hotelName, discountId, roomPensionId, roomTypeId, childCount, adultCount, startDate, endDate, guestName, guestPhone, guestIdNo, guestEmail, totalCost);
@@ -143,7 +148,7 @@ public class ReservationView extends Layout {
                         Utility.showMessage("reservation");
                         dispose();
                     }
-                } else if(updated){
+                } else if (updated) {
                     Utility.showMessage("reservation update");
                     dispose();
                 } else {
@@ -268,10 +273,12 @@ public class ReservationView extends Layout {
 
     private Boolean recalculate() {
 
+
         if (!fld_reservations_adult.getText().isEmpty() && !fld_reservations_children.getText().isEmpty() && !fld_reservations_enddate.getText().isEmpty() && !fld_reservations_startdate.getText().isEmpty()) {
             try {
                 childCount = Integer.valueOf(fld_reservations_children.getText().trim());
                 adultCount = Integer.valueOf(fld_reservations_adult.getText().trim());
+
 
                 if (fld_reservations_startdate.getText().length() == 10 && fld_reservations_enddate.getText().length() == 10) {
                     startDateString = fld_reservations_startdate.getText().trim();

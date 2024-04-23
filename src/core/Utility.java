@@ -17,6 +17,7 @@ public class Utility {
         }
     }
 
+
     public static void showMessage(String str) {
         String msg;
         String title;
@@ -44,6 +45,14 @@ public class Utility {
             case "reservation update":
                 msg = "Your reservation has been successfully updated.";
                 title = "Update Successful";
+                break;
+            case "pick a role":
+                msg = "Please pick a role to perform a search.";
+                title = "Error";
+                break;
+            case "bed limit":
+                msg = "The number of guests cannot exceed the number of beds.";
+                title = "Error";
                 break;
             default:
                 msg = str;

@@ -46,7 +46,7 @@ public class RoomView extends Layout {
     public RoomView() {
         this.roomManager = new RoomManager();
         this.add(container);
-        this.guiInitialize(1000, 700);
+        this.guiInitialize(700, 600);
         populateHotelComboBox();
         populateRoomTypeComboBox();
         final int[] selectedHotelId = {-1};
