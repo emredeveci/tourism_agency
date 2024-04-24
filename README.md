@@ -22,8 +22,8 @@ A booking panel simulation for a tourism agency, in which an agent can perform s
 - Core: Database connection and utility methods
     
 ## Video
+[![Watch the video](https://img.youtube.com/vi/EeUe5EgARwc/0.jpg)](https://www.youtube.com/watch?v=EeUe5EgARwc)
 
-https://www.youtube.com/watch?v=EeUe5EgARwc
 
 ## Screenshots
 
